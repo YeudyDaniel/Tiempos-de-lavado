@@ -1,0 +1,12 @@
+{
+  "name": "control-lavado",
+  "version": "1.0.0",
+  "description": "Control de lavado de equipos - servidor con sincronizacion en vivo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
