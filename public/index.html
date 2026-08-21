@@ -36,9 +36,10 @@
   body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);-webkit-font-smoothing:antialiased;min-height:100vh;}
   .wrap{max-width:960px;margin:0 auto;padding:28px 20px 80px;}
   header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 6px;}
-  h1{font-family:var(--font-display);font-weight:600;font-size:26px;margin:0 0 4px;letter-spacing:-.01em;}
-  .sub{color:var(--muted);font-size:14px;margin:0;}
+  #headerText{text-align:var(--header-align, left);flex:1;}
+  .eyebrow{font-family:var(--font-mono);font-size:var(--eyebrow-size, 11px);letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 6px;}
+  h1{font-family:var(--font-display);font-weight:600;font-size:var(--title-size, 26px);margin:0 0 4px;letter-spacing:-.01em;}
+  .sub{color:var(--muted);font-size:var(--sub-size, 14px);margin:0;}
   .conn{font-family:var(--font-mono);font-size:11px;color:var(--muted-2);margin-top:2px;}
   .conn.live{color:var(--ok);}
 
@@ -100,7 +101,8 @@
   .gauge-time{font-family:var(--font-mono);font-size:21px;font-weight:600;letter-spacing:-.01em;}
   .gauge-status{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
 
-  .next-wash{font-size:12px;color:var(--muted);margin:2px 0 14px;}
+  .next-wash{font-size:12px;color:var(--muted);margin:2px 0 4px;}
+  .washed-by{font-size:11px;color:var(--muted-2);margin:0 0 14px;font-family:var(--font-mono);}
 
   .btn-wash{width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;}
   .btn-wash:hover{border-color:var(--ok);color:var(--ok);}
@@ -134,10 +136,10 @@
 <body>
 <div class="wrap">
   <header>
-    <div>
-      <p class="eyebrow">Registro de sanitización de equipos</p>
-      <h1>Control de lavado</h1>
-      <p class="sub">Sincronizado en la red — todos ven los mismos tiempos.</p>
+    <div id="headerText">
+      <p class="eyebrow" id="pageEyebrow">Registro de sanitización de equipos</p>
+      <h1 id="pageTitle">Control de lavado</h1>
+      <p class="sub" id="pageSub">Sincronizado en la red — todos ven los mismos tiempos.</p>
       <p class="conn" id="connStatus">Conectando...</p>
     </div>
     <button class="admin-toggle" id="adminToggle">
@@ -175,6 +177,26 @@
 
   <div class="admin-panel" id="configPanel">
     <p style="margin:0 0 14px;font-size:13px;color:var(--muted);">Estos cambios se guardan para todos los que usen la app.</p>
+
+    <p style="margin:0 0 10px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);">Textos del encabezado</p>
+    <div class="form-row"><label for="txtEyebrow">Etiqueta pequeña</label><input type="text" id="txtEyebrow" maxlength="80"></div>
+    <div class="form-row"><label for="txtTitle">Título principal</label><input type="text" id="txtTitle" maxlength="60"></div>
+    <div class="form-row"><label for="txtSub">Subtítulo</label><input type="text" id="txtSub" maxlength="120"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="form-row"><label for="sizeEyebrow">Tamaño etiqueta (px)</label><input type="number" id="sizeEyebrow" min="8" max="24"></div>
+      <div class="form-row"><label for="sizeTitle">Tamaño título (px)</label><input type="number" id="sizeTitle" min="14" max="48"></div>
+      <div class="form-row"><label for="sizeSub">Tamaño subtítulo (px)</label><input type="number" id="sizeSub" min="10" max="24"></div>
+    </div>
+    <div class="form-row">
+      <label for="headerAlign">Posición del encabezado</label>
+      <select id="headerAlign" style="width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font-body);">
+        <option value="left">Izquierda</option>
+        <option value="center">Centro</option>
+        <option value="right">Derecha</option>
+      </select>
+    </div>
+
+    <p style="margin:18px 0 10px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);">Tipografía y colores</p>
     <div class="form-row">
       <label for="fontSelect">Tipografía</label>
       <select id="fontSelect" style="width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font-body);"></select>
@@ -251,7 +273,12 @@
   var DEFAULT_CONFIG = {
     bg:'#12181a', panel:'#1b2226', text:'#e7eeec',
     ok:'#4fa97c', warn:'#e0a83e', urgent:'#ff6a45', overdue:'#e15a4d',
-    fontId:'tecnico'
+    fontId:'tecnico',
+    headerEyebrow:'Registro de sanitización de equipos',
+    headerTitle:'Control de lavado',
+    headerSub:'Sincronizado en la red — todos ven los mismos tiempos.',
+    eyebrowSize:11, titleSize:26, subSize:14,
+    headerAlign:'left'
   };
 
   var currentConfig = Object.assign({}, DEFAULT_CONFIG);
@@ -269,6 +296,18 @@
     root.setProperty('--font-display', pairing.display);
     root.setProperty('--font-mono', pairing.mono);
     root.setProperty('--font-body', pairing.body);
+
+    root.setProperty('--eyebrow-size', (cfg.eyebrowSize||11) + 'px');
+    root.setProperty('--title-size', (cfg.titleSize||26) + 'px');
+    root.setProperty('--sub-size', (cfg.subSize||14) + 'px');
+    root.setProperty('--header-align', cfg.headerAlign || 'left');
+
+    var eyebrowEl = document.getElementById('pageEyebrow');
+    var titleEl = document.getElementById('pageTitle');
+    var subEl = document.getElementById('pageSub');
+    if(eyebrowEl) eyebrowEl.textContent = cfg.headerEyebrow || DEFAULT_CONFIG.headerEyebrow;
+    if(titleEl) titleEl.textContent = cfg.headerTitle || DEFAULT_CONFIG.headerTitle;
+    if(subEl) subEl.textContent = cfg.headerSub || DEFAULT_CONFIG.headerSub;
   }
 
   async function fetchConfig(){
@@ -436,6 +475,13 @@
     document.getElementById('colorUrgent').value = cfg.urgent;
     document.getElementById('colorOverdue').value = cfg.overdue;
     fontSelect.value = cfg.fontId;
+    document.getElementById('txtEyebrow').value = cfg.headerEyebrow || DEFAULT_CONFIG.headerEyebrow;
+    document.getElementById('txtTitle').value = cfg.headerTitle || DEFAULT_CONFIG.headerTitle;
+    document.getElementById('txtSub').value = cfg.headerSub || DEFAULT_CONFIG.headerSub;
+    document.getElementById('sizeEyebrow').value = cfg.eyebrowSize || DEFAULT_CONFIG.eyebrowSize;
+    document.getElementById('sizeTitle').value = cfg.titleSize || DEFAULT_CONFIG.titleSize;
+    document.getElementById('sizeSub').value = cfg.subSize || DEFAULT_CONFIG.subSize;
+    document.getElementById('headerAlign').value = cfg.headerAlign || DEFAULT_CONFIG.headerAlign;
   }
 
   function readConfigForm(){
@@ -447,7 +493,14 @@
       warn: document.getElementById('colorWarn').value,
       urgent: document.getElementById('colorUrgent').value,
       overdue: document.getElementById('colorOverdue').value,
-      fontId: fontSelect.value
+      fontId: fontSelect.value,
+      headerEyebrow: document.getElementById('txtEyebrow').value.trim() || DEFAULT_CONFIG.headerEyebrow,
+      headerTitle: document.getElementById('txtTitle').value.trim() || DEFAULT_CONFIG.headerTitle,
+      headerSub: document.getElementById('txtSub').value.trim() || DEFAULT_CONFIG.headerSub,
+      eyebrowSize: parseInt(document.getElementById('sizeEyebrow').value,10) || DEFAULT_CONFIG.eyebrowSize,
+      titleSize: parseInt(document.getElementById('sizeTitle').value,10) || DEFAULT_CONFIG.titleSize,
+      subSize: parseInt(document.getElementById('sizeSub').value,10) || DEFAULT_CONFIG.subSize,
+      headerAlign: document.getElementById('headerAlign').value
     };
   }
 
@@ -534,6 +587,7 @@
         '</div>' +
       '</div>' +
       '<p class="next-wash" id="next-'+eq.id+'">Próximo lavado: '+fmtDateTime(st.nextWash)+'</p>' +
+      '<p class="washed-by" id="washedby-'+eq.id+'">'+(eq.lastWashedBy ? 'Firmado por: '+escapeHtml(eq.lastWashedBy) : 'Sin firmar aún')+'</p>' +
       '<button class="btn-wash" data-action="wash" data-id="'+eq.id+'">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>' +
         'Marcar lavado ahora' +
@@ -592,8 +646,18 @@
         if(!eq) return;
 
         if(action==='wash'){
+          var suggested = localStorage.getItem('lastWasherName') || '';
+          var washerName = window.prompt('Escribe tu nombre para firmar este lavado:', suggested);
+          if(washerName === null) return;
+          washerName = washerName.trim();
+          if(!washerName){ window.alert('Debes escribir un nombre para confirmar el lavado.'); return; }
+          localStorage.setItem('lastWasherName', washerName);
           try{
-            var r = await fetch(api('/api/equipos/'+id+'/lavar'), {method:'POST', cache:'no-store'});
+            var r = await fetch(api('/api/equipos/'+id+'/lavar'), {
+              method:'POST', cache:'no-store',
+              headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({name: washerName})
+            });
             if(r.ok) await refreshData();
           }catch(e){}
         } else if(action==='edit'){
