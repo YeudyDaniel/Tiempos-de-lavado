@@ -76,8 +76,8 @@
   .btn-ghost:hover{border-color:var(--muted-2);color:var(--text);}
   .error-msg{color:var(--overdue);font-size:12px;margin-top:6px;display:none;}
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px,1fr));gap:14px;}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(var(--card-min-width, 260px),1fr));gap:var(--card-gap, 14px);}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:var(--card-padding, 18px);display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;}
   .card.overdue{border-color:var(--overdue);}
   .card.warn{border-color:var(--warn);}
   .card.urgent{border-color:var(--urgent);animation:pulseBorder 1.4s ease-in-out infinite;}
@@ -89,16 +89,16 @@
   .icon-btn:hover{color:var(--text);background:var(--panel-alt);}
   .icon-btn svg{width:15px;height:15px;display:block;}
 
-  .name{font-family:var(--font-display);font-weight:600;font-size:15px;margin:0 0 2px;padding-right:44px;word-break:break-word;}
+  .name{font-family:var(--font-display);font-weight:600;font-size:var(--name-size, 15px);margin:0 0 2px;padding-right:44px;word-break:break-word;}
   .interval-label{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.04em;margin-bottom:12px;}
 
-  .gauge-wrap{position:relative;width:168px;height:168px;margin:0 auto 10px;}
+  .gauge-wrap{position:relative;width:var(--gauge-size, 168px);height:var(--gauge-size, 168px);margin:0 auto 10px;}
   .gauge-wrap svg{width:100%;height:100%;}
   .gauge-track{fill:none;stroke:var(--line-soft);}
   .gauge-tick{stroke:var(--line);stroke-width:1;}
   .gauge-arc{fill:none;stroke-linecap:round;transition:stroke-dashoffset 1s linear, stroke .4s ease;}
   .gauge-center{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .gauge-time{font-family:var(--font-mono);font-size:21px;font-weight:600;letter-spacing:-.01em;}
+  .gauge-time{font-family:var(--font-mono);font-size:var(--gauge-time-size, 21px);font-weight:600;letter-spacing:-.01em;}
   .gauge-status{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
 
   .next-wash{font-size:12px;color:var(--muted);margin:2px 0 4px;}
@@ -125,6 +125,30 @@
   .admin-panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:20px;display:none;}
   .admin-panel.open{display:block;}
   .admin-panel .form-row{margin-bottom:10px;}
+
+  .swatch-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .swatch{
+    width:34px;height:34px;border-radius:50%;border:2px solid transparent;cursor:pointer;
+    padding:0;position:relative;flex-shrink:0;
+  }
+  .swatch.neutral{width:44px;height:44px;border-radius:10px;display:flex;overflow:hidden;}
+  .swatch.neutral span{flex:1;}
+  .swatch.selected{border-color:var(--text);}
+  .swatch.selected::after{
+    content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.4);
+  }
+  .swatch.neutral.selected{box-shadow:0 0 0 2px var(--text);border-color:transparent;}
+
+  .cat-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .cat-chip{
+    background:var(--panel);border:1px solid var(--line);color:var(--muted);
+    border-radius:20px;padding:7px 14px;font-size:12px;font-family:var(--font-mono);
+    cursor:pointer;white-space:nowrap;
+  }
+  .cat-chip.active{background:var(--ok-dim);border-color:var(--ok);color:var(--ok);}
+  .cat-manage-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line-soft);}
+  .cat-manage-row input{flex:1;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font-body);}
 
   @media (max-width:480px){
     header{flex-direction:column;}
@@ -196,21 +220,28 @@
       </select>
     </div>
 
-    <p style="margin:18px 0 10px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);">Tipografía y colores</p>
+    <p style="margin:18px 0 10px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);">Tipografía</p>
     <div class="form-row">
       <label for="fontSelect">Tipografía</label>
       <select id="fontSelect" style="width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font-body);"></select>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
-      <div class="form-row"><label for="colorBg">Fondo</label><input type="color" id="colorBg" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
-      <div class="form-row"><label for="colorPanel">Paneles / tarjetas</label><input type="color" id="colorPanel" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
-      <div class="form-row"><label for="colorText">Texto</label><input type="color" id="colorText" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
-      <div class="form-row"><label for="colorOk">"A tiempo"</label><input type="color" id="colorOk" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
-      <div class="form-row"><label for="colorWarn">"Próximo"</label><input type="color" id="colorWarn" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
-      <div class="form-row"><label for="colorUrgent">"Últimos 5 min"</label><input type="color" id="colorUrgent" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
-      <div class="form-row"><label for="colorOverdue">"Vencido"</label><input type="color" id="colorOverdue" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
+
+    <p style="margin:18px 0 10px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);">Paleta de fondo</p>
+    <div class="swatch-row" id="swatchNeutral"></div>
+
+    <p style="margin:18px 0 10px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);">Colores de estado</p>
+    <div class="form-row"><label>"A tiempo"</label><div class="swatch-row" id="swatchOk"></div></div>
+    <div class="form-row"><label>"Próximo"</label><div class="swatch-row" id="swatchWarn"></div></div>
+    <div class="form-row"><label>"Últimos 5 min"</label><div class="swatch-row" id="swatchUrgent"></div></div>
+    <div class="form-row"><label>"Vencido"</label><div class="swatch-row" id="swatchOverdue"></div></div>
+
+    <p style="margin:18px 0 10px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.06em;font-family:var(--font-mono);">Tamaño de tarjetas</p>
+    <div class="chips" id="cardSizeChips">
+      <span class="chip" data-size="normal">Normal</span>
+      <span class="chip" data-size="compact">Compacto (más por pantalla)</span>
     </div>
-    <div class="error-msg" id="configError">No se pudo guardar. Verifica tu conexión.</div>
+
+    <div class="error-msg" id="configError" style="margin-top:14px;">No se pudo guardar. Verifica tu conexión.</div>
     <div class="form-actions">
       <button class="btn-primary" id="configSave">Guardar para todos</button>
       <button class="btn-ghost" id="configReset">Restablecer</button>
@@ -220,17 +251,40 @@
 
   <div class="summary" id="summary"></div>
 
-  <div class="toolbar">
+  <div class="cat-bar" id="catBar"></div>
+
+  <div class="toolbar" style="justify-content:space-between;">
+    <button class="btn-ghost" id="manageCatBtn" style="font-size:12px;padding:8px 12px;display:none;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h6v6h-6z"/></svg>
+      Categorías
+    </button>
     <button class="btn-add" id="toggleForm">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       Agregar equipo
     </button>
   </div>
 
+  <div class="admin-panel" id="catManagePanel">
+    <p style="margin:0 0 14px;font-size:13px;color:var(--muted);">Crea y administra las categorías (ej. Tanques, Máquinas). Al borrar una, los equipos que la usaban pasan a "Sin categoría".</p>
+    <div id="catManageList"></div>
+    <div class="cat-manage-row" style="border-bottom:none;margin-top:10px;">
+      <input type="text" id="newCatName" placeholder="Nombre de nueva categoría" maxlength="40">
+      <button class="btn-primary" id="addCatBtn" style="padding:8px 14px;font-size:13px;">Agregar</button>
+    </div>
+    <div class="error-msg" id="catError">No se pudo completar la acción.</div>
+    <div class="form-actions">
+      <button class="btn-ghost" id="catManageClose">Cerrar</button>
+    </div>
+  </div>
+
   <div class="form-panel" id="formPanel">
     <div class="form-row">
       <label for="eqName">Nombre del equipo</label>
       <input type="text" id="eqName" placeholder="Tanque aséptico">
+    </div>
+    <div class="form-row">
+      <label for="eqCategory">Categoría</label>
+      <select id="eqCategory" style="width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:15px;font-family:var(--font-body);"></select>
     </div>
     <div class="form-row">
       <label for="eqInterval">Intervalo de lavado (horas)</label>
@@ -259,9 +313,26 @@
 <script>
 (function(){
   var equipos = [];
+  var categorias = [];
+  var activeCategory = localStorage.getItem('activeCategory') || '';
   var isAdmin = false;
   var adminPin = localStorage.getItem('adminPin') || '';
   var lastSync = null;
+
+  var NEUTRAL_THEMES = [
+    {id:'grafito', label:'Grafito', bg:'#12181a', panel:'#1b2226', text:'#e7eeec'},
+    {id:'pizarra', label:'Pizarra azul', bg:'#10151c', panel:'#1a232e', text:'#e5edf5'},
+    {id:'carbon', label:'Carbón', bg:'#0d0d0d', panel:'#1a1a1a', text:'#f0f0f0'},
+    {id:'niebla', label:'Niebla', bg:'#f2f4f3', panel:'#ffffff', text:'#1c2422'},
+    {id:'arena', label:'Arena', bg:'#f6f1e9', panel:'#fffdf9', text:'#2b241a'}
+  ];
+
+  var ACCENT_SWATCHES = {
+    ok: ['#4fa97c','#22c55e','#16a34a','#2dd4bf','#059669','#65a30d'],
+    warn: ['#e0a83e','#f59e0b','#eab308','#d97706','#facc15','#ca8a04'],
+    urgent: ['#ff6a45','#f97316','#fb923c','#ea580c','#f43f5e','#fb7185'],
+    overdue: ['#e15a4d','#ef4444','#dc2626','#e11d48','#be123c','#9f1239']
+  };
 
   var FONT_PAIRINGS = [
     {id:'tecnico', label:'Técnico (predeterminado)', display:"'Space Grotesk', sans-serif", mono:"'IBM Plex Mono', monospace", body:"'IBM Plex Sans', sans-serif"},
@@ -278,7 +349,8 @@
     headerTitle:'Control de lavado',
     headerSub:'Sincronizado en la red — todos ven los mismos tiempos.',
     eyebrowSize:11, titleSize:26, subSize:14,
-    headerAlign:'left'
+    headerAlign:'left',
+    cardSize:'normal'
   };
 
   var currentConfig = Object.assign({}, DEFAULT_CONFIG);
@@ -308,6 +380,14 @@
     if(eyebrowEl) eyebrowEl.textContent = cfg.headerEyebrow || DEFAULT_CONFIG.headerEyebrow;
     if(titleEl) titleEl.textContent = cfg.headerTitle || DEFAULT_CONFIG.headerTitle;
     if(subEl) subEl.textContent = cfg.headerSub || DEFAULT_CONFIG.headerSub;
+
+    var compact = cfg.cardSize === 'compact';
+    root.setProperty('--card-min-width', compact ? '150px' : '260px');
+    root.setProperty('--card-gap', compact ? '10px' : '14px');
+    root.setProperty('--card-padding', compact ? '12px' : '18px');
+    root.setProperty('--gauge-size', compact ? '96px' : '168px');
+    root.setProperty('--gauge-time-size', compact ? '14px' : '21px');
+    root.setProperty('--name-size', compact ? '12px' : '15px');
   }
 
   async function fetchConfig(){
@@ -420,10 +500,12 @@
     var label = document.getElementById('adminLabel');
     var addBtn = document.getElementById('toggleForm');
     var backupBar = document.getElementById('backupBar');
+    var manageCatBtn = document.getElementById('manageCatBtn');
     toggle.classList.toggle('on', isAdmin);
     label.textContent = isAdmin ? 'Administrador' : 'Modo lectura';
     addBtn.disabled = !isAdmin;
     backupBar.style.display = isAdmin ? 'flex' : 'none';
+    manageCatBtn.style.display = isAdmin ? 'inline-flex' : 'none';
   }
   document.getElementById('backupBtn').addEventListener('click', function(){
     var blob = new Blob([JSON.stringify(equipos, null, 2)], {type:'application/json'});
@@ -458,7 +540,101 @@
     }
   });
 
-  var configPanel = document.getElementById('configPanel');
+  async function fetchCategorias(){
+    try{
+      var r = await fetch(api('/api/categorias'), {cache:'no-store'});
+      if(!r.ok) throw new Error('bad status');
+      categorias = await r.json();
+    }catch(e){ /* keep last known list */ }
+  }
+
+  function renderCatBar(){
+    var bar = document.getElementById('catBar');
+    var chips = [{id:'', name:'General (todos)'}].concat(categorias);
+    bar.innerHTML = chips.map(function(c){
+      var active = c.id === activeCategory ? ' active' : '';
+      return '<button type="button" class="cat-chip'+active+'" data-cat="'+c.id+'">'+escapeHtml(c.name)+'</button>';
+    }).join('');
+    bar.querySelectorAll('.cat-chip').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        activeCategory = btn.getAttribute('data-cat');
+        localStorage.setItem('activeCategory', activeCategory);
+        renderCatBar();
+        renderGrid();
+      });
+    });
+  }
+
+  function populateCategorySelect(selectEl, selectedId){
+    selectEl.innerHTML = '<option value="">Sin categoría</option>' +
+      categorias.map(function(c){ return '<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'; }).join('');
+    selectEl.value = selectedId || '';
+  }
+
+  function renderCatManageList(){
+    var el = document.getElementById('catManageList');
+    if(categorias.length === 0){
+      el.innerHTML = '<p style="font-size:13px;color:var(--muted-2);margin:6px 0;">Todavía no hay categorías.</p>';
+      return;
+    }
+    el.innerHTML = categorias.map(function(c){
+      return '<div class="cat-manage-row" data-id="'+c.id+'">' +
+        '<input type="text" value="'+escapeHtml(c.name)+'" data-cat-input="'+c.id+'">' +
+        '<button class="icon-btn" data-cat-action="rename" data-id="'+c.id+'" aria-label="Renombrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></button>' +
+        '<button class="icon-btn" data-cat-action="delete" data-id="'+c.id+'" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>' +
+      '</div>';
+    }).join('');
+    el.querySelectorAll('[data-cat-action]').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.getAttribute('data-id');
+        var action = btn.getAttribute('data-cat-action');
+        document.getElementById('catError').style.display = 'none';
+        if(action === 'rename'){
+          var input = el.querySelector('[data-cat-input="'+id+'"]');
+          var newName = input.value.trim();
+          if(!newName) return;
+          try{
+            var r = await fetch(api('/api/categorias/'+id), {method:'PUT', headers: headers(true), body: JSON.stringify({name:newName})});
+            if(r.ok){ await fetchCategorias(); renderCatManageList(); renderCatBar(); }
+            else document.getElementById('catError').style.display = 'block';
+          }catch(e){ document.getElementById('catError').style.display = 'block'; }
+        } else if(action === 'delete'){
+          try{
+            var r2 = await fetch(api('/api/categorias/'+id), {method:'DELETE', headers: headers(false)});
+            if(r2.ok){
+              if(activeCategory === id){ activeCategory = ''; localStorage.setItem('activeCategory',''); }
+              await fetchCategorias(); await fetchEquipos();
+              renderCatManageList(); renderCatBar(); renderGrid();
+            } else document.getElementById('catError').style.display = 'block';
+          }catch(e){ document.getElementById('catError').style.display = 'block'; }
+        }
+      });
+    });
+  }
+
+  document.getElementById('manageCatBtn').addEventListener('click', function(){
+    closeAllPanels();
+    adminPanel.classList.remove('open');
+    renderCatManageList();
+    document.getElementById('catManagePanel').classList.add('open');
+  });
+  document.getElementById('catManageClose').addEventListener('click', function(){
+    document.getElementById('catManagePanel').classList.remove('open');
+  });
+  document.getElementById('addCatBtn').addEventListener('click', async function(){
+    var input = document.getElementById('newCatName');
+    var name = input.value.trim();
+    if(!name) return;
+    document.getElementById('catError').style.display = 'none';
+    try{
+      var r = await fetch(api('/api/categorias'), {method:'POST', headers: headers(true), body: JSON.stringify({name:name})});
+      if(r.ok){
+        input.value = '';
+        await fetchCategorias();
+        renderCatManageList(); renderCatBar();
+      } else document.getElementById('catError').style.display = 'block';
+    }catch(e){ document.getElementById('catError').style.display = 'block'; }
+  });
   var fontSelect = document.getElementById('fontSelect');
   FONT_PAIRINGS.forEach(function(f){
     var opt = document.createElement('option');
@@ -466,14 +642,42 @@
     fontSelect.appendChild(opt);
   });
 
+  function renderSwatchRow(containerId, colorList, isNeutral, onPick){
+    var el = document.getElementById(containerId);
+    el.innerHTML = '';
+    colorList.forEach(function(item){
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      var value = isNeutral ? item.id : item;
+      btn.dataset.value = value;
+      if(isNeutral){
+        btn.className = 'swatch neutral';
+        btn.title = item.label;
+        btn.innerHTML = '<span style="background:'+item.bg+'"></span><span style="background:'+item.panel+'"></span>';
+      } else {
+        btn.className = 'swatch';
+        btn.style.background = item;
+      }
+      btn.addEventListener('click', function(){
+        el.querySelectorAll('.swatch').forEach(function(s){ s.classList.remove('selected'); });
+        btn.classList.add('selected');
+        onPick(value);
+      });
+      el.appendChild(btn);
+    });
+  }
+
+  function markSelected(containerId, value){
+    var el = document.getElementById(containerId);
+    el.querySelectorAll('.swatch').forEach(function(s){
+      s.classList.toggle('selected', s.dataset.value === value);
+    });
+  }
+
+  var pendingConfig = {};
+
   function fillConfigForm(cfg){
-    document.getElementById('colorBg').value = cfg.bg;
-    document.getElementById('colorPanel').value = cfg.panel;
-    document.getElementById('colorText').value = cfg.text;
-    document.getElementById('colorOk').value = cfg.ok;
-    document.getElementById('colorWarn').value = cfg.warn;
-    document.getElementById('colorUrgent').value = cfg.urgent;
-    document.getElementById('colorOverdue').value = cfg.overdue;
+    pendingConfig = Object.assign({}, cfg);
     fontSelect.value = cfg.fontId;
     document.getElementById('txtEyebrow').value = cfg.headerEyebrow || DEFAULT_CONFIG.headerEyebrow;
     document.getElementById('txtTitle').value = cfg.headerTitle || DEFAULT_CONFIG.headerTitle;
@@ -482,17 +686,28 @@
     document.getElementById('sizeTitle').value = cfg.titleSize || DEFAULT_CONFIG.titleSize;
     document.getElementById('sizeSub').value = cfg.subSize || DEFAULT_CONFIG.subSize;
     document.getElementById('headerAlign').value = cfg.headerAlign || DEFAULT_CONFIG.headerAlign;
+
+    var neutralMatch = NEUTRAL_THEMES.find(function(t){ return t.bg===cfg.bg && t.panel===cfg.panel && t.text===cfg.text; });
+    markSelected('swatchNeutral', neutralMatch ? neutralMatch.id : '');
+    markSelected('swatchOk', cfg.ok);
+    markSelected('swatchWarn', cfg.warn);
+    markSelected('swatchUrgent', cfg.urgent);
+    markSelected('swatchOverdue', cfg.overdue);
+
+    document.querySelectorAll('#cardSizeChips .chip').forEach(function(c){
+      c.classList.toggle('active', c.getAttribute('data-size') === (cfg.cardSize || 'normal'));
+    });
   }
 
   function readConfigForm(){
     return {
-      bg: document.getElementById('colorBg').value,
-      panel: document.getElementById('colorPanel').value,
-      text: document.getElementById('colorText').value,
-      ok: document.getElementById('colorOk').value,
-      warn: document.getElementById('colorWarn').value,
-      urgent: document.getElementById('colorUrgent').value,
-      overdue: document.getElementById('colorOverdue').value,
+      bg: pendingConfig.bg || DEFAULT_CONFIG.bg,
+      panel: pendingConfig.panel || DEFAULT_CONFIG.panel,
+      text: pendingConfig.text || DEFAULT_CONFIG.text,
+      ok: pendingConfig.ok || DEFAULT_CONFIG.ok,
+      warn: pendingConfig.warn || DEFAULT_CONFIG.warn,
+      urgent: pendingConfig.urgent || DEFAULT_CONFIG.urgent,
+      overdue: pendingConfig.overdue || DEFAULT_CONFIG.overdue,
       fontId: fontSelect.value,
       headerEyebrow: document.getElementById('txtEyebrow').value.trim() || DEFAULT_CONFIG.headerEyebrow,
       headerTitle: document.getElementById('txtTitle').value.trim() || DEFAULT_CONFIG.headerTitle,
@@ -500,9 +715,28 @@
       eyebrowSize: parseInt(document.getElementById('sizeEyebrow').value,10) || DEFAULT_CONFIG.eyebrowSize,
       titleSize: parseInt(document.getElementById('sizeTitle').value,10) || DEFAULT_CONFIG.titleSize,
       subSize: parseInt(document.getElementById('sizeSub').value,10) || DEFAULT_CONFIG.subSize,
-      headerAlign: document.getElementById('headerAlign').value
+      headerAlign: document.getElementById('headerAlign').value,
+      cardSize: pendingConfig.cardSize || 'normal'
     };
   }
+
+  renderSwatchRow('swatchNeutral', NEUTRAL_THEMES, true, function(themeId){
+    var t = NEUTRAL_THEMES.find(function(x){return x.id===themeId;});
+    pendingConfig.bg = t.bg; pendingConfig.panel = t.panel; pendingConfig.text = t.text;
+    applyConfig(readConfigForm());
+  });
+  renderSwatchRow('swatchOk', ACCENT_SWATCHES.ok, false, function(v){ pendingConfig.ok = v; applyConfig(readConfigForm()); });
+  renderSwatchRow('swatchWarn', ACCENT_SWATCHES.warn, false, function(v){ pendingConfig.warn = v; applyConfig(readConfigForm()); });
+  renderSwatchRow('swatchUrgent', ACCENT_SWATCHES.urgent, false, function(v){ pendingConfig.urgent = v; applyConfig(readConfigForm()); });
+  renderSwatchRow('swatchOverdue', ACCENT_SWATCHES.overdue, false, function(v){ pendingConfig.overdue = v; applyConfig(readConfigForm()); });
+
+  document.getElementById('cardSizeChips').addEventListener('click', function(e){
+    var chip = e.target.closest('.chip'); if(!chip) return;
+    document.querySelectorAll('#cardSizeChips .chip').forEach(function(c){c.classList.remove('active');});
+    chip.classList.add('active');
+    pendingConfig.cardSize = chip.getAttribute('data-size');
+    applyConfig(readConfigForm());
+  });
 
   document.getElementById('settingsBtn').addEventListener('click', function(){
     closeAllPanels();
@@ -548,7 +782,8 @@
 
   function renderSummary(){
     var counts = {ok:0, warn:0, overdue:0, urgent:0};
-    equipos.forEach(function(eq){
+    var scoped = activeCategory ? equipos.filter(function(eq){ return eq.categoryId === activeCategory; }) : equipos;
+    scoped.forEach(function(eq){
       var s = computeState(eq).status;
       counts[s] = (counts[s]||0) + 1;
     });
@@ -570,6 +805,7 @@
     var editPanel = isAdmin ? (
       '<div class="edit-panel" id="edit-'+eq.id+'">' +
         '<div class="form-row"><label>Nombre</label><input type="text" id="editName-'+eq.id+'" value="'+escapeHtml(eq.name)+'"></div>' +
+        '<div class="form-row"><label>Categoría</label><select id="editCategory-'+eq.id+'" style="width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font-body);"></select></div>' +
         '<div class="form-row"><label>Intervalo (horas)</label><input type="number" min="1" id="editInterval-'+eq.id+'" value="'+eq.intervalHours+'"></div>' +
         '<div class="form-actions"><button class="btn-primary" data-action="saveEdit" data-id="'+eq.id+'">Guardar</button><button class="btn-ghost" data-action="cancelEdit" data-id="'+eq.id+'">Cancelar</button></div>' +
       '</div>' +
@@ -597,7 +833,9 @@
 
   function anyPanelOpen(){
     return document.querySelectorAll('.edit-panel.open, .confirm-del.open').length > 0 ||
-           document.getElementById('formPanel').classList.contains('open');
+           document.getElementById('formPanel').classList.contains('open') ||
+           (document.getElementById('configPanel') && document.getElementById('configPanel').classList.contains('open')) ||
+           (document.getElementById('catManagePanel') && document.getElementById('catManagePanel').classList.contains('open'));
   }
 
   function renderGrid(){
@@ -605,10 +843,19 @@
     sortEquipos();
     var grid = document.getElementById('grid');
     var empty = document.getElementById('emptyState');
-    if(equipos.length===0){ grid.innerHTML=''; empty.style.display='block'; renderSummary(); return; }
+    var visible = activeCategory ? equipos.filter(function(eq){ return eq.categoryId === activeCategory; }) : equipos;
+    if(visible.length===0){
+      grid.innerHTML='';
+      empty.style.display='block';
+      document.querySelector('#emptyState .hint').textContent = activeCategory
+        ? 'No hay equipos en esta categoría todavía.'
+        : 'Activa el modo administrador y toca "Agregar equipo" para registrar el primero.';
+      renderSummary();
+      return;
+    }
     empty.style.display='none';
-    grid.innerHTML = equipos.map(cardTemplate).join('');
-    equipos.forEach(function(eq){ updateArc(eq); });
+    grid.innerHTML = visible.map(cardTemplate).join('');
+    visible.forEach(function(eq){ updateArc(eq); populateCategorySelect(document.getElementById('editCategory-'+eq.id), eq.categoryId); });
     renderSummary();
     attachCardEvents();
   }
@@ -668,11 +915,13 @@
         } else if(action==='saveEdit'){
           var nameInput = document.getElementById('editName-'+id);
           var intInput = document.getElementById('editInterval-'+id);
+          var catInput = document.getElementById('editCategory-'+id);
           var newName = nameInput.value.trim();
           var newInterval = parseFloat(intInput.value);
+          var newCategory = catInput ? catInput.value : '';
           if(!newName || !newInterval || newInterval<=0){ intInput.style.outline = '2px solid var(--overdue)'; return; }
           try{
-            var r2 = await fetch(api('/api/equipos/'+id), {method:'PUT', headers: headers(true), body: JSON.stringify({name:newName, intervalHours:newInterval})});
+            var r2 = await fetch(api('/api/equipos/'+id), {method:'PUT', headers: headers(true), body: JSON.stringify({name:newName, intervalHours:newInterval, categoryId:newCategory})});
             if(r2.ok){ document.getElementById('edit-'+id).classList.remove('open'); await refreshData(); }
           }catch(e){}
         } else if(action==='del'){
@@ -694,12 +943,16 @@
     document.querySelectorAll('.edit-panel.open, .confirm-del.open').forEach(function(p){ p.classList.remove('open'); });
     var cfgP = document.getElementById('configPanel');
     if(cfgP) cfgP.classList.remove('open');
+    var catP = document.getElementById('catManagePanel');
+    if(catP) catP.classList.remove('open');
   }
 
   async function refreshData(){
     await fetchEquipos();
     var cfgPanelOpen = document.getElementById('configPanel') && document.getElementById('configPanel').classList.contains('open');
     if(!cfgPanelOpen) await fetchConfig();
+    var catPanelOpen = document.getElementById('catManagePanel') && document.getElementById('catManagePanel').classList.contains('open');
+    if(!catPanelOpen){ await fetchCategorias(); renderCatBar(); }
     renderGrid();
   }
 
@@ -707,7 +960,10 @@
   document.getElementById('toggleForm').addEventListener('click', function(){
     if(!isAdmin){ openAdminPanel(); return; }
     formPanel.classList.toggle('open');
-    if(formPanel.classList.contains('open')) document.getElementById('eqName').focus();
+    if(formPanel.classList.contains('open')){
+      populateCategorySelect(document.getElementById('eqCategory'), activeCategory);
+      document.getElementById('eqName').focus();
+    }
   });
   document.getElementById('cancelForm').addEventListener('click', function(){
     formPanel.classList.remove('open');
@@ -728,10 +984,11 @@
   document.getElementById('saveEq').addEventListener('click', async function(){
     var name = document.getElementById('eqName').value.trim();
     var interval = parseFloat(document.getElementById('eqInterval').value);
+    var categoryId = document.getElementById('eqCategory').value;
     if(!name || !interval || interval<=0){ document.getElementById('formError').style.display='block'; return; }
     document.getElementById('formError').style.display='none';
     try{
-      var r = await fetch(api('/api/equipos'), {method:'POST', headers: headers(true), body: JSON.stringify({name:name, intervalHours:interval})});
+      var r = await fetch(api('/api/equipos'), {method:'POST', headers: headers(true), body: JSON.stringify({name:name, intervalHours:interval, categoryId:categoryId})});
       if(r.ok){
         document.getElementById('eqName').value=''; document.getElementById('eqInterval').value='';
         document.querySelectorAll('#presetChips .chip').forEach(function(c){c.classList.remove('active');});
@@ -774,6 +1031,8 @@
   (async function init(){
     await fetchConfig();
     await fetchEquipos();
+    await fetchCategorias();
+    renderCatBar();
     await checkAdmin();
     renderGrid();
     setInterval(tick, 1000);
