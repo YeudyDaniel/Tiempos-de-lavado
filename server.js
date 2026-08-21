@@ -156,10 +156,16 @@ const server = http.createServer(async (req, res) => {
 
   const washMatch = urlPath.match(/^\/api\/equipos\/([a-zA-Z0-9_]+)\/lavar$/);
   if (washMatch && req.method === 'POST') {
+    let name = '';
+    try {
+      const input = await readBody(req);
+      if (input && input.name) name = String(input.name).slice(0, 60);
+    } catch (e) { /* body may be empty; proceed without a name */ }
     const data = readData();
     const eq = data.find(e => e.id === washMatch[1]);
     if (!eq) { sendJSON(res, 404, { error: 'Equipo no encontrado' }); return; }
     eq.lastWashed = Date.now();
+    if (name) eq.lastWashedBy = name;
     writeData(data);
     sendJSON(res, 200, eq);
     return;
