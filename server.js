@@ -3,10 +3,23 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
-const ADMIN_PIN = '1234'; // Cambia este PIN por uno tuyo. Solo quien lo sepa puede agregar/editar/borrar equipos.
+const ADMIN_PIN = '1234'; // Solo quien lo sepa puede agregar/editar/borrar equipos.
 const DATA_FILE = path.join(__dirname, 'equipos.json');
 const CONFIG_FILE = path.join(__dirname, 'config.json');
+const CATEGORIES_FILE = path.join(__dirname, 'categorias.json');
 const PUBLIC_DIR = path.join(__dirname, 'public');
+
+function readCategories() {
+  try {
+    return JSON.parse(fs.readFileSync(CATEGORIES_FILE, 'utf8'));
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeCategories(cats) {
+  fs.writeFileSync(CATEGORIES_FILE, JSON.stringify(cats, null, 2));
+}
 
 function readConfig() {
   try {
@@ -109,6 +122,55 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (urlPath === '/api/categorias' && req.method === 'GET') {
+    sendJSON(res, 200, readCategories());
+    return;
+  }
+
+  if (urlPath === '/api/categorias' && req.method === 'POST') {
+    if (!isAdmin(req)) { sendJSON(res, 403, { error: 'PIN de administrador incorrecto' }); return; }
+    try {
+      const input = await readBody(req);
+      if (!input.name || !String(input.name).trim()) { sendJSON(res, 400, { error: 'Nombre requerido' }); return; }
+      const cats = readCategories();
+      const cat = {
+        id: 'cat_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+        name: String(input.name).trim().slice(0, 40)
+      };
+      cats.push(cat);
+      writeCategories(cats);
+      sendJSON(res, 200, cat);
+    } catch (e) { sendJSON(res, 400, { error: 'Datos inválidos' }); }
+    return;
+  }
+
+  const catIdMatch = urlPath.match(/^\/api\/categorias\/([a-zA-Z0-9_]+)$/);
+  if (catIdMatch && req.method === 'PUT') {
+    if (!isAdmin(req)) { sendJSON(res, 403, { error: 'PIN de administrador incorrecto' }); return; }
+    try {
+      const input = await readBody(req);
+      const cats = readCategories();
+      const cat = cats.find(c => c.id === catIdMatch[1]);
+      if (!cat) { sendJSON(res, 404, { error: 'Categoría no encontrada' }); return; }
+      if (input.name && String(input.name).trim()) cat.name = String(input.name).trim().slice(0, 40);
+      writeCategories(cats);
+      sendJSON(res, 200, cat);
+    } catch (e) { sendJSON(res, 400, { error: 'Datos inválidos' }); }
+    return;
+  }
+
+  if (catIdMatch && req.method === 'DELETE') {
+    if (!isAdmin(req)) { sendJSON(res, 403, { error: 'PIN de administrador incorrecto' }); return; }
+    const cats = readCategories().filter(c => c.id !== catIdMatch[1]);
+    writeCategories(cats);
+    const data = readData();
+    let changed = false;
+    data.forEach(eq => { if (eq.categoryId === catIdMatch[1]) { eq.categoryId = ''; changed = true; } });
+    if (changed) writeData(data);
+    sendJSON(res, 200, { ok: true });
+    return;
+  }
+
   if (urlPath === '/api/equipos' && req.method === 'POST') {
     if (!isAdmin(req)) { sendJSON(res, 403, { error: 'PIN de administrador incorrecto' }); return; }
     try {
@@ -121,6 +183,7 @@ const server = http.createServer(async (req, res) => {
         id: 'eq_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8),
         name: String(input.name).slice(0, 80),
         intervalHours: Number(input.intervalHours),
+        categoryId: input.categoryId ? String(input.categoryId) : '',
         lastWashed: Date.now()
       };
       data.push(eq);
@@ -140,6 +203,7 @@ const server = http.createServer(async (req, res) => {
       if (!eq) { sendJSON(res, 404, { error: 'Equipo no encontrado' }); return; }
       if (input.name) eq.name = String(input.name).slice(0, 80);
       if (input.intervalHours) eq.intervalHours = Number(input.intervalHours);
+      if (input.categoryId !== undefined) eq.categoryId = String(input.categoryId);
       writeData(data);
       sendJSON(res, 200, eq);
     } catch (e) { sendJSON(res, 400, { error: 'Datos inválidos' }); }
@@ -176,6 +240,7 @@ const server = http.createServer(async (req, res) => {
 
 if (!fs.existsSync(DATA_FILE)) writeData([]);
 if (!fs.existsSync(CONFIG_FILE)) writeConfig({});
+if (!fs.existsSync(CATEGORIES_FILE)) writeCategories([]);
 
 server.listen(PORT, () => {
   console.log('');
