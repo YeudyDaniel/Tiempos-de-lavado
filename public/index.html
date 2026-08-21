@@ -6,23 +6,40 @@
 <title>Control de sanitización</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&family=Space+Mono:wght@400;700&family=Nunito+Sans:wght@400;600;700&family=Playfair+Display:wght@600;700&family=Courier+Prime:wght@400;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#12181a; --panel:#1b2226; --panel-alt:#212b2f; --line:#323e42; --line-soft:#252e32;
-    --text:#e7eeec; --muted:#7e938f; --muted-2:#546461;
-    --ok:#4fa97c; --ok-dim:#2c4a3c; --warn:#e0a83e; --warn-dim:#4a3e22;
-    --urgent:#ff6a45; --urgent-dim:#4a2418; --overdue:#e15a4d; --overdue-dim:#4a2622;
+    --bg:#12181a;
+    --panel:#1b2226;
+    --text:#e7eeec;
+    --ok:#4fa97c;
+    --warn:#e0a83e;
+    --urgent:#ff6a45;
+    --overdue:#e15a4d;
+
+    --panel-alt: color-mix(in srgb, var(--panel) 88%, white 8%);
+    --line: color-mix(in srgb, var(--panel) 68%, var(--text) 14%);
+    --line-soft: color-mix(in srgb, var(--panel) 85%, var(--text) 7%);
+    --muted: color-mix(in srgb, var(--text) 52%, var(--bg) 48%);
+    --muted-2: color-mix(in srgb, var(--text) 32%, var(--bg) 68%);
+    --ok-dim: color-mix(in srgb, var(--ok) 22%, var(--panel) 78%);
+    --warn-dim: color-mix(in srgb, var(--warn) 22%, var(--panel) 78%);
+    --urgent-dim: color-mix(in srgb, var(--urgent) 22%, var(--panel) 78%);
+    --overdue-dim: color-mix(in srgb, var(--overdue) 22%, var(--panel) 78%);
     --radius:10px;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-body: 'IBM Plex Sans', sans-serif;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans', sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);-webkit-font-smoothing:antialiased;min-height:100vh;}
   .wrap{max-width:960px;margin:0 auto;padding:28px 20px 80px;}
   header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 6px;}
-  h1{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:26px;margin:0 0 4px;letter-spacing:-.01em;}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 6px;}
+  h1{font-family:var(--font-display);font-weight:600;font-size:26px;margin:0 0 4px;letter-spacing:-.01em;}
   .sub{color:var(--muted);font-size:14px;margin:0;}
-  .conn{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-2);margin-top:2px;}
+  .conn{font-family:var(--font-mono);font-size:11px;color:var(--muted-2);margin-top:2px;}
   .conn.live{color:var(--ok);}
 
   .admin-toggle{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:8px 12px;font-size:12px;display:flex;align-items:center;gap:6px;white-space:nowrap;cursor:pointer;}
@@ -30,12 +47,12 @@
 
   .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0;}
   .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;}
-  .stat .n{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;}
+  .stat .n{font-family:var(--font-mono);font-size:22px;font-weight:600;}
   .stat .l{font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:2px;}
   .stat.overdue .n{color:var(--overdue);} .stat.warn .n{color:var(--warn);} .stat.ok .n{color:var(--ok);}
 
   .toolbar{display:flex;justify-content:flex-end;margin-bottom:16px;}
-  button{font-family:'IBM Plex Sans',sans-serif;cursor:pointer;}
+  button{font-family:var(--font-body);cursor:pointer;}
   .btn-add{background:var(--text);color:var(--bg);border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;}
   .btn-add:hover{opacity:.88;}
   .btn-add:disabled{opacity:.35;cursor:not-allowed;}
@@ -46,10 +63,10 @@
   .form-row{margin-bottom:14px;}
   .form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:.02em;}
   .form-row input[type="text"], .form-row input[type="number"], .form-row input[type="password"]{
-    width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:15px;font-family:'IBM Plex Sans',sans-serif;
+    width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:15px;font-family:var(--font-body);
   }
   .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
-  .chip{background:var(--panel-alt);border:1px solid var(--line);color:var(--muted);border-radius:20px;padding:6px 14px;font-size:13px;font-family:'IBM Plex Mono',monospace;}
+  .chip{background:var(--panel-alt);border:1px solid var(--line);color:var(--muted);border-radius:20px;padding:6px 14px;font-size:13px;font-family:var(--font-mono);}
   .chip.active{background:var(--ok-dim);border-color:var(--ok);color:var(--ok);}
   .form-actions{display:flex;gap:10px;margin-top:16px;}
   .btn-primary{background:var(--ok);color:#0d1a14;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:500;}
@@ -71,8 +88,8 @@
   .icon-btn:hover{color:var(--text);background:var(--panel-alt);}
   .icon-btn svg{width:15px;height:15px;display:block;}
 
-  .name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;margin:0 0 2px;padding-right:44px;word-break:break-word;}
-  .interval-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.04em;margin-bottom:12px;}
+  .name{font-family:var(--font-display);font-weight:600;font-size:15px;margin:0 0 2px;padding-right:44px;word-break:break-word;}
+  .interval-label{font-family:var(--font-mono);font-size:11px;color:var(--muted);letter-spacing:.04em;margin-bottom:12px;}
 
   .gauge-wrap{position:relative;width:168px;height:168px;margin:0 auto 10px;}
   .gauge-wrap svg{width:100%;height:100%;}
@@ -80,8 +97,8 @@
   .gauge-tick{stroke:var(--line);stroke-width:1;}
   .gauge-arc{fill:none;stroke-linecap:round;transition:stroke-dashoffset 1s linear, stroke .4s ease;}
   .gauge-center{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .gauge-time{font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:600;letter-spacing:-.01em;}
-  .gauge-status{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
+  .gauge-time{font-family:var(--font-mono);font-size:21px;font-weight:600;letter-spacing:-.01em;}
+  .gauge-status{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
 
   .next-wash{font-size:12px;color:var(--muted);margin:2px 0 14px;}
 
@@ -150,6 +167,33 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
       Descargar respaldo
     </button>
+    <button class="btn-ghost" id="settingsBtn" style="font-size:12px;padding:8px 12px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Personalizar
+    </button>
+  </div>
+
+  <div class="admin-panel" id="configPanel">
+    <p style="margin:0 0 14px;font-size:13px;color:var(--muted);">Estos cambios se guardan para todos los que usen la app.</p>
+    <div class="form-row">
+      <label for="fontSelect">Tipografía</label>
+      <select id="fontSelect" style="width:100%;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font-body);"></select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+      <div class="form-row"><label for="colorBg">Fondo</label><input type="color" id="colorBg" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
+      <div class="form-row"><label for="colorPanel">Paneles / tarjetas</label><input type="color" id="colorPanel" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
+      <div class="form-row"><label for="colorText">Texto</label><input type="color" id="colorText" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
+      <div class="form-row"><label for="colorOk">"A tiempo"</label><input type="color" id="colorOk" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
+      <div class="form-row"><label for="colorWarn">"Próximo"</label><input type="color" id="colorWarn" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
+      <div class="form-row"><label for="colorUrgent">"Últimos 5 min"</label><input type="color" id="colorUrgent" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
+      <div class="form-row"><label for="colorOverdue">"Vencido"</label><input type="color" id="colorOverdue" style="width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel-alt);padding:2px;"></div>
+    </div>
+    <div class="error-msg" id="configError">No se pudo guardar. Verifica tu conexión.</div>
+    <div class="form-actions">
+      <button class="btn-primary" id="configSave">Guardar para todos</button>
+      <button class="btn-ghost" id="configReset">Restablecer</button>
+      <button class="btn-ghost" id="configCancel">Cancelar</button>
+    </div>
   </div>
 
   <div class="summary" id="summary"></div>
@@ -195,6 +239,47 @@
   var equipos = [];
   var isAdmin = false;
   var adminPin = localStorage.getItem('adminPin') || '';
+  var lastSync = null;
+
+  var FONT_PAIRINGS = [
+    {id:'tecnico', label:'Técnico (predeterminado)', display:"'Space Grotesk', sans-serif", mono:"'IBM Plex Mono', monospace", body:"'IBM Plex Sans', sans-serif"},
+    {id:'moderno', label:'Moderno', display:"'Sora', sans-serif", mono:"'JetBrains Mono', monospace", body:"'Inter', sans-serif"},
+    {id:'calido', label:'Cálido', display:"'Poppins', sans-serif", mono:"'Space Mono', monospace", body:"'Nunito Sans', sans-serif"},
+    {id:'clasico', label:'Clásico', display:"'Playfair Display', serif", mono:"'Courier Prime', monospace", body:"'Source Sans 3', sans-serif"}
+  ];
+
+  var DEFAULT_CONFIG = {
+    bg:'#12181a', panel:'#1b2226', text:'#e7eeec',
+    ok:'#4fa97c', warn:'#e0a83e', urgent:'#ff6a45', overdue:'#e15a4d',
+    fontId:'tecnico'
+  };
+
+  var currentConfig = Object.assign({}, DEFAULT_CONFIG);
+
+  function applyConfig(cfg){
+    var root = document.documentElement.style;
+    root.setProperty('--bg', cfg.bg);
+    root.setProperty('--panel', cfg.panel);
+    root.setProperty('--text', cfg.text);
+    root.setProperty('--ok', cfg.ok);
+    root.setProperty('--warn', cfg.warn);
+    root.setProperty('--urgent', cfg.urgent);
+    root.setProperty('--overdue', cfg.overdue);
+    var pairing = FONT_PAIRINGS.find(function(f){return f.id===cfg.fontId;}) || FONT_PAIRINGS[0];
+    root.setProperty('--font-display', pairing.display);
+    root.setProperty('--font-mono', pairing.mono);
+    root.setProperty('--font-body', pairing.body);
+  }
+
+  async function fetchConfig(){
+    try{
+      var r = await fetch(api('/api/config'), {cache:'no-store'});
+      if(!r.ok) throw new Error('bad status');
+      var data = await r.json();
+      currentConfig = Object.assign({}, DEFAULT_CONFIG, data);
+      applyConfig(currentConfig);
+    }catch(e){ /* keep last known / default config */ }
+  }
 
   function api(path){ return path; }
 
@@ -256,9 +341,10 @@
 
   async function fetchEquipos(){
     try{
-      var r = await fetch(api('/api/equipos'));
+      var r = await fetch(api('/api/equipos'), {cache:'no-store'});
       if(!r.ok) throw new Error('bad status');
       equipos = await r.json();
+      lastSync = Date.now();
       setConn(true);
       return true;
     }catch(e){
@@ -269,8 +355,16 @@
 
   function setConn(ok){
     var el = document.getElementById('connStatus');
-    el.textContent = ok ? 'Sincronizado con el servidor' : 'Sin conexión al servidor — reintentando...';
     el.className = 'conn' + (ok ? ' live' : '');
+    if(!ok){ el.textContent = 'Sin conexión al servidor — reintentando...'; return; }
+    el.dataset.live = '1';
+  }
+
+  function updateSyncLabel(){
+    var el = document.getElementById('connStatus');
+    if(el.dataset.live !== '1' || !lastSync) return;
+    var secs = Math.floor((Date.now() - lastSync)/1000);
+    el.textContent = secs < 2 ? 'Sincronizado ahora mismo' : 'Sincronizado hace ' + secs + 's';
   }
 
   async function checkAdmin(){
@@ -292,7 +386,6 @@
     addBtn.disabled = !isAdmin;
     backupBar.style.display = isAdmin ? 'flex' : 'none';
   }
-
   document.getElementById('backupBtn').addEventListener('click', function(){
     var blob = new Blob([JSON.stringify(equipos, null, 2)], {type:'application/json'});
     var url = URL.createObjectURL(blob);
@@ -323,6 +416,76 @@
       });
     } else {
       window.prompt('Copia este enlace manualmente:', link);
+    }
+  });
+
+  var configPanel = document.getElementById('configPanel');
+  var fontSelect = document.getElementById('fontSelect');
+  FONT_PAIRINGS.forEach(function(f){
+    var opt = document.createElement('option');
+    opt.value = f.id; opt.textContent = f.label;
+    fontSelect.appendChild(opt);
+  });
+
+  function fillConfigForm(cfg){
+    document.getElementById('colorBg').value = cfg.bg;
+    document.getElementById('colorPanel').value = cfg.panel;
+    document.getElementById('colorText').value = cfg.text;
+    document.getElementById('colorOk').value = cfg.ok;
+    document.getElementById('colorWarn').value = cfg.warn;
+    document.getElementById('colorUrgent').value = cfg.urgent;
+    document.getElementById('colorOverdue').value = cfg.overdue;
+    fontSelect.value = cfg.fontId;
+  }
+
+  function readConfigForm(){
+    return {
+      bg: document.getElementById('colorBg').value,
+      panel: document.getElementById('colorPanel').value,
+      text: document.getElementById('colorText').value,
+      ok: document.getElementById('colorOk').value,
+      warn: document.getElementById('colorWarn').value,
+      urgent: document.getElementById('colorUrgent').value,
+      overdue: document.getElementById('colorOverdue').value,
+      fontId: fontSelect.value
+    };
+  }
+
+  document.getElementById('settingsBtn').addEventListener('click', function(){
+    closeAllPanels();
+    adminPanel.classList.remove('open');
+    fillConfigForm(currentConfig);
+    configPanel.classList.add('open');
+  });
+
+  configPanel.addEventListener('input', function(){
+    applyConfig(readConfigForm());
+  });
+
+  document.getElementById('configCancel').addEventListener('click', function(){
+    applyConfig(currentConfig);
+    configPanel.classList.remove('open');
+  });
+
+  document.getElementById('configReset').addEventListener('click', function(){
+    fillConfigForm(DEFAULT_CONFIG);
+    applyConfig(DEFAULT_CONFIG);
+  });
+
+  document.getElementById('configSave').addEventListener('click', async function(){
+    var newConfig = readConfigForm();
+    document.getElementById('configError').style.display = 'none';
+    try{
+      var r = await fetch(api('/api/config'), {method:'PUT', headers: headers(true), body: JSON.stringify(newConfig)});
+      if(r.ok){
+        currentConfig = newConfig;
+        applyConfig(currentConfig);
+        configPanel.classList.remove('open');
+      } else {
+        document.getElementById('configError').style.display = 'block';
+      }
+    }catch(e){
+      document.getElementById('configError').style.display = 'block';
     }
   });
 
@@ -406,6 +569,7 @@
   }
 
   function tick(){
+    updateSyncLabel();
     equipos.forEach(function(eq){
       var st = computeState(eq);
       var timeEl = document.getElementById('time-'+eq.id);
@@ -429,7 +593,7 @@
 
         if(action==='wash'){
           try{
-            var r = await fetch(api('/api/equipos/'+id+'/lavar'), {method:'POST'});
+            var r = await fetch(api('/api/equipos/'+id+'/lavar'), {method:'POST', cache:'no-store'});
             if(r.ok) await refreshData();
           }catch(e){}
         } else if(action==='edit'){
@@ -464,10 +628,14 @@
 
   function closeAllPanels(){
     document.querySelectorAll('.edit-panel.open, .confirm-del.open').forEach(function(p){ p.classList.remove('open'); });
+    var cfgP = document.getElementById('configPanel');
+    if(cfgP) cfgP.classList.remove('open');
   }
 
   async function refreshData(){
     await fetchEquipos();
+    var cfgPanelOpen = document.getElementById('configPanel') && document.getElementById('configPanel').classList.contains('open');
+    if(!cfgPanelOpen) await fetchConfig();
     renderGrid();
   }
 
@@ -518,6 +686,7 @@
     }
   });
   function openAdminPanel(){
+    configPanel.classList.remove('open');
     adminPanel.classList.add('open');
     document.getElementById('pinInput').value='';
     document.getElementById('pinError').style.display='none';
@@ -539,11 +708,12 @@
   });
 
   (async function init(){
+    await fetchConfig();
     await fetchEquipos();
     await checkAdmin();
     renderGrid();
     setInterval(tick, 1000);
-    setInterval(refreshData, 8000);
+    setInterval(refreshData, 5000);
   })();
 })();
 </script>
