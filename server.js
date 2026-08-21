@@ -5,7 +5,20 @@ const path = require('path');
 const PORT = process.env.PORT || 3000;
 const ADMIN_PIN = '1234'; // Cambia este PIN por uno tuyo. Solo quien lo sepa puede agregar/editar/borrar equipos.
 const DATA_FILE = path.join(__dirname, 'equipos.json');
+const CONFIG_FILE = path.join(__dirname, 'config.json');
 const PUBLIC_DIR = path.join(__dirname, 'public');
+
+function readConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+  } catch (e) {
+    return {};
+  }
+}
+
+function writeConfig(cfg) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2));
+}
 
 function readData() {
   try {
@@ -22,7 +35,9 @@ function writeData(data) {
 function sendJSON(res, status, obj) {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*'
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    'Pragma': 'no-cache'
   });
   res.end(JSON.stringify(obj));
 }
@@ -76,6 +91,21 @@ const server = http.createServer(async (req, res) => {
 
   if (urlPath === '/api/equipos' && req.method === 'GET') {
     sendJSON(res, 200, readData());
+    return;
+  }
+
+  if (urlPath === '/api/config' && req.method === 'GET') {
+    sendJSON(res, 200, readConfig());
+    return;
+  }
+
+  if (urlPath === '/api/config' && req.method === 'PUT') {
+    if (!isAdmin(req)) { sendJSON(res, 403, { error: 'PIN de administrador incorrecto' }); return; }
+    try {
+      const input = await readBody(req);
+      writeConfig(input);
+      sendJSON(res, 200, input);
+    } catch (e) { sendJSON(res, 400, { error: 'Datos inválidos' }); }
     return;
   }
 
@@ -139,6 +169,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 if (!fs.existsSync(DATA_FILE)) writeData([]);
+if (!fs.existsSync(CONFIG_FILE)) writeConfig({});
 
 server.listen(PORT, () => {
   console.log('');
