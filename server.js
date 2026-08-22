@@ -3,11 +3,32 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
-const ADMIN_PIN = '1234'; // Solo quien lo sepa puede agregar/editar/borrar equipos.
+const ADMIN_PIN = '1234'; // PIN de administrador.
 const DATA_FILE = path.join(__dirname, 'equipos.json');
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 const CATEGORIES_FILE = path.join(__dirname, 'categorias.json');
+const HISTORY_FILE = path.join(__dirname, 'historial.json');
 const PUBLIC_DIR = path.join(__dirname, 'public');
+const MAX_HISTORY = 3000;
+
+function readHistory() {
+  try {
+    return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeHistory(hist) {
+  fs.writeFileSync(HISTORY_FILE, JSON.stringify(hist, null, 2));
+}
+
+function addHistoryEntry(entry) {
+  const hist = readHistory();
+  hist.push(entry);
+  while (hist.length > MAX_HISTORY) hist.shift();
+  writeHistory(hist);
+}
 
 function readCategories() {
   try {
@@ -107,6 +128,25 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (urlPath === '/api/equipos/restaurar' && req.method === 'POST') {
+    if (!isAdmin(req)) { sendJSON(res, 403, { error: 'PIN de administrador incorrecto' }); return; }
+    try {
+      const input = await readBody(req);
+      if (!Array.isArray(input)) { sendJSON(res, 400, { error: 'El archivo no tiene el formato esperado (debe ser una lista de equipos)' }); return; }
+      const cleaned = input.map(item => ({
+        id: item.id && typeof item.id === 'string' ? item.id : ('eq_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8)),
+        name: String(item.name || 'Equipo sin nombre').slice(0, 80),
+        intervalHours: Number(item.intervalHours) > 0 ? Number(item.intervalHours) : 24,
+        categoryId: item.categoryId ? String(item.categoryId) : '',
+        lastWashed: Number(item.lastWashed) || Date.now(),
+        lastWashedBy: item.lastWashedBy ? String(item.lastWashedBy).slice(0, 60) : undefined
+      }));
+      writeData(cleaned);
+      sendJSON(res, 200, { ok: true, restored: cleaned.length });
+    } catch (e) { sendJSON(res, 400, { error: 'No se pudo leer el archivo de respaldo' }); }
+    return;
+  }
+
   if (urlPath === '/api/config' && req.method === 'GET') {
     sendJSON(res, 200, readConfig());
     return;
@@ -124,6 +164,12 @@ const server = http.createServer(async (req, res) => {
 
   if (urlPath === '/api/categorias' && req.method === 'GET') {
     sendJSON(res, 200, readCategories());
+    return;
+  }
+
+  if (urlPath === '/api/historial' && req.method === 'GET') {
+    const hist = readHistory().slice().reverse();
+    sendJSON(res, 200, hist);
     return;
   }
 
@@ -231,6 +277,13 @@ const server = http.createServer(async (req, res) => {
     eq.lastWashed = Date.now();
     if (name) eq.lastWashedBy = name;
     writeData(data);
+    addHistoryEntry({
+      id: 'h_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+      equipoId: eq.id,
+      equipoName: eq.name,
+      timestamp: eq.lastWashed,
+      washedBy: name || ''
+    });
     sendJSON(res, 200, eq);
     return;
   }
@@ -241,6 +294,7 @@ const server = http.createServer(async (req, res) => {
 if (!fs.existsSync(DATA_FILE)) writeData([]);
 if (!fs.existsSync(CONFIG_FILE)) writeConfig({});
 if (!fs.existsSync(CATEGORIES_FILE)) writeCategories([]);
+if (!fs.existsSync(HISTORY_FILE)) writeHistory([]);
 
 server.listen(PORT, () => {
   console.log('');
