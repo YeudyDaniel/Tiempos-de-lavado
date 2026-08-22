@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
-const ADMIN_PIN = '1234'; // PIN de administrador.
+const ADMIN_PIN = '1234'; // Pin de administrador.
 const DATA_FILE = path.join(__dirname, 'equipos.json');
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 const CATEGORIES_FILE = path.join(__dirname, 'categorias.json');
