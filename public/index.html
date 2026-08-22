@@ -99,7 +99,7 @@
   .gauge-arc{fill:none;stroke-linecap:round;transition:stroke-dashoffset 1s linear, stroke .4s ease;}
   .gauge-center{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .gauge-time{font-family:var(--font-mono);font-size:var(--gauge-time-size, 21px);font-weight:600;letter-spacing:-.01em;}
-  .gauge-status{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-top:4px;}
+  .gauge-status{font-family:var(--font-mono);font-size:var(--gauge-status-size, 10px);letter-spacing:var(--gauge-status-spacing, .1em);text-transform:uppercase;margin-top:4px;line-height:1.2;white-space:nowrap;}
 
   .next-wash{font-size:12px;color:var(--muted);margin:2px 0 4px;}
   .washed-by{font-size:11px;color:var(--muted-2);margin:0 0 14px;font-family:var(--font-mono);}
@@ -150,6 +150,13 @@
   .cat-manage-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line-soft);}
   .cat-manage-row input{flex:1;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:7px 10px;font-size:13px;font-family:var(--font-body);}
 
+  .hist-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:13px;}
+  .hist-row:last-child{border-bottom:none;}
+  .hist-eq{font-weight:500;}
+  .hist-who{color:var(--muted);font-size:12px;}
+  .hist-when{color:var(--muted-2);font-size:11px;font-family:var(--font-mono);white-space:nowrap;flex-shrink:0;}
+  .hist-empty{text-align:center;color:var(--muted-2);font-size:13px;padding:30px 0;}
+
   @media (max-width:480px){
     header{flex-direction:column;}
     .summary{grid-template-columns:1fr 1fr 1fr;gap:8px;}
@@ -166,10 +173,16 @@
       <p class="sub" id="pageSub">Sincronizado en la red — todos ven los mismos tiempos.</p>
       <p class="conn" id="connStatus">Conectando...</p>
     </div>
-    <button class="admin-toggle" id="adminToggle">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
-      <span id="adminLabel">Modo lectura</span>
-    </button>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+      <button class="admin-toggle" id="alertsToggle">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span id="alertsLabel">Activar alertas</span>
+      </button>
+      <button class="admin-toggle" id="adminToggle">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        <span id="adminLabel">Modo lectura</span>
+      </button>
+    </div>
   </header>
 
   <div class="admin-panel" id="adminPanel">
@@ -193,6 +206,11 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
       Descargar respaldo
     </button>
+    <button class="btn-ghost" id="restoreBtn" style="font-size:12px;padding:8px 12px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M21 9v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4"/><path d="M17 14l-5-5-5 5"/><path d="M12 9v12"/></svg>
+      Restaurar respaldo
+    </button>
+    <input type="file" id="restoreFileInput" accept="application/json,.json" style="display:none;">
     <button class="btn-ghost" id="settingsBtn" style="font-size:12px;padding:8px 12px;">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       Personalizar
@@ -241,6 +259,11 @@
       <span class="chip" data-size="compact">Compacto (más por pantalla)</span>
     </div>
 
+    <div class="form-row" style="margin-top:14px;">
+      <label for="ringThickness">Grosor del anillo (<span id="ringThicknessVal">7</span>px)</label>
+      <input type="range" id="ringThickness" min="3" max="14" step="1" style="width:100%;">
+    </div>
+
     <div class="error-msg" id="configError" style="margin-top:14px;">No se pudo guardar. Verifica tu conexión.</div>
     <div class="form-actions">
       <button class="btn-primary" id="configSave">Guardar para todos</button>
@@ -254,14 +277,44 @@
   <div class="cat-bar" id="catBar"></div>
 
   <div class="toolbar" style="justify-content:space-between;">
-    <button class="btn-ghost" id="manageCatBtn" style="font-size:12px;padding:8px 12px;display:none;">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h6v6h-6z"/></svg>
-      Categorías
-    </button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-ghost" id="manageCatBtn" style="font-size:12px;padding:8px 12px;display:none;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M4 4h6v6H4z"/><path d="M14 4h6v6h-6z"/><path d="M4 14h6v6H4z"/><path d="M14 14h6v6h-6z"/></svg>
+        Categorías
+      </button>
+      <button class="btn-ghost" id="historyBtn" style="font-size:12px;padding:8px 12px;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+        Historial
+      </button>
+    </div>
     <button class="btn-add" id="toggleForm">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       Agregar equipo
     </button>
+  </div>
+
+  <div class="admin-panel" id="historyPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;">
+      <input type="text" id="historySearch" placeholder="Buscar por equipo o nombre..." style="flex:1;min-width:160px;background:var(--panel-alt);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font-body);">
+      <button class="btn-ghost" id="exportHistoryBtn" style="font-size:12px;padding:9px 12px;white-space:nowrap;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        Exportar CSV
+      </button>
+    </div>
+    <div id="historyList" style="max-height:360px;overflow-y:auto;"></div>
+    <div class="form-actions">
+      <button class="btn-ghost" id="historyClose">Cerrar</button>
+    </div>
+  </div>
+
+  <div class="admin-panel" id="restoreConfirmPanel">
+    <p style="margin:0 0 6px;font-size:14px;color:var(--overdue);font-weight:600;">⚠ Esto reemplaza TODOS los equipos actuales</p>
+    <p style="margin:0 0 14px;font-size:13px;color:var(--muted);" id="restoreFileInfo"></p>
+    <div class="error-msg" id="restoreError">No se pudo restaurar. Verifica que el archivo sea un respaldo válido de esta app.</div>
+    <div class="form-actions">
+      <button class="btn-danger" id="restoreConfirmBtn">Sí, reemplazar todo</button>
+      <button class="btn-ghost" id="restoreCancelBtn">Cancelar</button>
+    </div>
   </div>
 
   <div class="admin-panel" id="catManagePanel">
@@ -350,7 +403,8 @@
     headerSub:'Sincronizado en la red — todos ven los mismos tiempos.',
     eyebrowSize:11, titleSize:26, subSize:14,
     headerAlign:'left',
-    cardSize:'normal'
+    cardSize:'normal',
+    ringThickness:7
   };
 
   var currentConfig = Object.assign({}, DEFAULT_CONFIG);
@@ -387,7 +441,10 @@
     root.setProperty('--card-padding', compact ? '12px' : '18px');
     root.setProperty('--gauge-size', compact ? '96px' : '168px');
     root.setProperty('--gauge-time-size', compact ? '14px' : '21px');
+    root.setProperty('--gauge-status-size', compact ? '8px' : '10px');
+    root.setProperty('--gauge-status-spacing', compact ? '.03em' : '.1em');
     root.setProperty('--name-size', compact ? '12px' : '15px');
+    root.setProperty('--ring-thickness', cfg.ringThickness || DEFAULT_CONFIG.ringThickness);
   }
 
   async function fetchConfig(){
@@ -449,8 +506,8 @@
     }
     var circumference = 2*Math.PI*r;
     return '<svg viewBox="0 0 168 168">' + ticks +
-      '<circle class="gauge-track" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="9"/>' +
-      '<circle class="gauge-arc" id="arc-'+id+'" cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-width="9" transform="rotate(-90 '+cx+' '+cy+')" stroke-dasharray="'+circumference+'" stroke-dashoffset="0"/>' +
+      '<circle class="gauge-track" cx="'+cx+'" cy="'+cy+'" r="'+r+'" style="stroke-width:var(--ring-thickness, 9)"/>' +
+      '<circle class="gauge-arc" id="arc-'+id+'" cx="'+cx+'" cy="'+cy+'" r="'+r+'" style="stroke-width:var(--ring-thickness, 9)" transform="rotate(-90 '+cx+' '+cy+')" stroke-dasharray="'+circumference+'" stroke-dashoffset="0"/>' +
       '</svg>';
   }
   function statusText(s){ if(s==='overdue')return 'Vencido'; if(s==='urgent')return 'Últimos 5 min'; if(s==='warn')return 'Próximo'; return 'A tiempo'; }
@@ -507,6 +564,59 @@
     backupBar.style.display = isAdmin ? 'flex' : 'none';
     manageCatBtn.style.display = isAdmin ? 'inline-flex' : 'none';
   }
+  var pendingRestoreData = null;
+
+  document.getElementById('restoreBtn').addEventListener('click', function(){
+    document.getElementById('restoreFileInput').click();
+  });
+
+  document.getElementById('restoreFileInput').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      try{
+        var parsed = JSON.parse(evt.target.result);
+        if(!Array.isArray(parsed)) throw new Error('no es una lista');
+        pendingRestoreData = parsed;
+        document.getElementById('restoreFileInfo').textContent =
+          'Archivo: ' + file.name + ' — contiene ' + parsed.length + ' equipo(s). Los equipos actuales en el servidor se van a reemplazar por estos.';
+        document.getElementById('restoreError').style.display = 'none';
+        closeAllPanels();
+        adminPanel.classList.remove('open');
+        document.getElementById('restoreConfirmPanel').classList.add('open');
+      }catch(err){
+        window.alert('Ese archivo no parece un respaldo válido de esta app (debe ser el .json que descargaste con "Descargar respaldo").');
+      }
+      document.getElementById('restoreFileInput').value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('restoreCancelBtn').addEventListener('click', function(){
+    pendingRestoreData = null;
+    document.getElementById('restoreConfirmPanel').classList.remove('open');
+  });
+
+  document.getElementById('restoreConfirmBtn').addEventListener('click', async function(){
+    if(!pendingRestoreData) return;
+    document.getElementById('restoreError').style.display = 'none';
+    try{
+      var r = await fetch(api('/api/equipos/restaurar'), {
+        method:'POST', headers: headers(true), body: JSON.stringify(pendingRestoreData)
+      });
+      if(r.ok){
+        pendingRestoreData = null;
+        document.getElementById('restoreConfirmPanel').classList.remove('open');
+        await refreshData();
+      } else {
+        document.getElementById('restoreError').style.display = 'block';
+      }
+    }catch(e){
+      document.getElementById('restoreError').style.display = 'block';
+    }
+  });
+
   document.getElementById('backupBtn').addEventListener('click', function(){
     var blob = new Blob([JSON.stringify(equipos, null, 2)], {type:'application/json'});
     var url = URL.createObjectURL(blob);
@@ -520,7 +630,83 @@
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('shareBtn').addEventListener('click', function(){
+  var ORIGINAL_TITLE = document.title;
+  var alertsEnabled = localStorage.getItem('alertsEnabled') === '1';
+  var notifiedStatus = {};
+
+  function playBeep(){
+    try{
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.16, ctx.currentTime+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+0.35);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime+0.4);
+    }catch(e){}
+  }
+
+  function triggerAlert(eq, status){
+    playBeep();
+    if(window.Notification && Notification.permission === 'granted'){
+      try{
+        new Notification(status==='overdue' ? '🔴 Lavado vencido' : '🟠 Últimos 5 minutos', {
+          body: eq.name + (status==='overdue' ? ' ya venció su lavado.' : ' está por vencer su lavado.'),
+          tag: 'wash-'+eq.id
+        });
+      }catch(e){}
+    }
+  }
+
+  function updateTabTitle(counts){
+    var total = counts.overdue + counts.urgent;
+    document.title = total > 0 ? '(' + total + ') ⚠ ' + ORIGINAL_TITLE : ORIGINAL_TITLE;
+  }
+
+  function checkAlerts(){
+    var counts = {overdue:0, urgent:0};
+    equipos.forEach(function(eq){
+      var st = computeState(eq).status;
+      if(st==='overdue') counts.overdue++;
+      else if(st==='urgent') counts.urgent++;
+
+      if(st==='urgent' || st==='overdue'){
+        if(alertsEnabled && notifiedStatus[eq.id] !== st){
+          triggerAlert(eq, st);
+        }
+        notifiedStatus[eq.id] = st;
+      } else if(notifiedStatus[eq.id]){
+        delete notifiedStatus[eq.id];
+      }
+    });
+    updateTabTitle(counts);
+  }
+
+  function updateAlertsUI(){
+    var btn = document.getElementById('alertsToggle');
+    var label = document.getElementById('alertsLabel');
+    btn.classList.toggle('on', alertsEnabled);
+    label.textContent = alertsEnabled ? 'Alertas activas' : 'Activar alertas';
+  }
+
+  document.getElementById('alertsToggle').addEventListener('click', function(){
+    if(!alertsEnabled){
+      alertsEnabled = true;
+      localStorage.setItem('alertsEnabled', '1');
+      if(window.Notification && Notification.permission === 'default'){
+        Notification.requestPermission();
+      }
+      playBeep();
+    } else {
+      alertsEnabled = false;
+      localStorage.setItem('alertsEnabled', '0');
+    }
+    updateAlertsUI();
+  });
     var link = window.location.origin + window.location.pathname;
     var btn = document.getElementById('shareBtn');
     var restoreLabel = function(){
@@ -566,6 +752,7 @@
   }
 
   function populateCategorySelect(selectEl, selectedId){
+    if(!selectEl) return;
     selectEl.innerHTML = '<option value="">Sin categoría</option>' +
       categorias.map(function(c){ return '<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'; }).join('');
     selectEl.value = selectedId || '';
@@ -612,7 +799,70 @@
     });
   }
 
-  document.getElementById('manageCatBtn').addEventListener('click', function(){
+  var historial = [];
+
+  async function fetchHistorial(){
+    try{
+      var r = await fetch(api('/api/historial'), {cache:'no-store'});
+      if(!r.ok) throw new Error('bad status');
+      historial = await r.json();
+    }catch(e){ /* keep last known */ }
+  }
+
+  function renderHistoryList(){
+    var search = document.getElementById('historySearch').value.trim().toLowerCase();
+    var list = document.getElementById('historyList');
+    var filtered = historial.filter(function(h){
+      if(!search) return true;
+      return (h.equipoName||'').toLowerCase().indexOf(search)>-1 || (h.washedBy||'').toLowerCase().indexOf(search)>-1;
+    }).slice(0, 200);
+    if(filtered.length === 0){
+      list.innerHTML = '<p class="hist-empty">Sin registros todavía.</p>';
+      return;
+    }
+    list.innerHTML = filtered.map(function(h){
+      return '<div class="hist-row">' +
+        '<div><div class="hist-eq">'+escapeHtml(h.equipoName||'(equipo eliminado)')+'</div>' +
+        '<div class="hist-who">'+(h.washedBy ? escapeHtml(h.washedBy) : 'Sin firma')+'</div></div>' +
+        '<div class="hist-when">'+fmtDateTime(h.timestamp)+'</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  document.getElementById('historyBtn').addEventListener('click', async function(){
+    closeAllPanels();
+    adminPanel.classList.remove('open');
+    await fetchHistorial();
+    renderHistoryList();
+    document.getElementById('historyPanel').classList.add('open');
+  });
+  document.getElementById('historyClose').addEventListener('click', function(){
+    document.getElementById('historyPanel').classList.remove('open');
+  });
+  document.getElementById('historySearch').addEventListener('input', renderHistoryList);
+
+  document.getElementById('exportHistoryBtn').addEventListener('click', function(){
+    var rows = [['Fecha y hora','Equipo','Firmado por']];
+    historial.forEach(function(h){
+      rows.push([fmtDateTime(h.timestamp), h.equipoName||'', h.washedBy||'']);
+    });
+    var csv = rows.map(function(row){
+      return row.map(function(cell){
+        var s = String(cell).replace(/"/g,'""');
+        return '"'+s+'"';
+      }).join(',');
+    }).join('\r\n');
+    var blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+    a.href = url;
+    a.download = 'historial-lavados-' + stamp + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
     closeAllPanels();
     adminPanel.classList.remove('open');
     renderCatManageList();
@@ -697,6 +947,10 @@
     document.querySelectorAll('#cardSizeChips .chip').forEach(function(c){
       c.classList.toggle('active', c.getAttribute('data-size') === (cfg.cardSize || 'normal'));
     });
+
+    var thickness = cfg.ringThickness || DEFAULT_CONFIG.ringThickness;
+    document.getElementById('ringThickness').value = thickness;
+    document.getElementById('ringThicknessVal').textContent = thickness;
   }
 
   function readConfigForm(){
@@ -716,7 +970,8 @@
       titleSize: parseInt(document.getElementById('sizeTitle').value,10) || DEFAULT_CONFIG.titleSize,
       subSize: parseInt(document.getElementById('sizeSub').value,10) || DEFAULT_CONFIG.subSize,
       headerAlign: document.getElementById('headerAlign').value,
-      cardSize: pendingConfig.cardSize || 'normal'
+      cardSize: pendingConfig.cardSize || 'normal',
+      ringThickness: parseInt(document.getElementById('ringThickness').value, 10) || DEFAULT_CONFIG.ringThickness
     };
   }
 
@@ -729,6 +984,10 @@
   renderSwatchRow('swatchWarn', ACCENT_SWATCHES.warn, false, function(v){ pendingConfig.warn = v; applyConfig(readConfigForm()); });
   renderSwatchRow('swatchUrgent', ACCENT_SWATCHES.urgent, false, function(v){ pendingConfig.urgent = v; applyConfig(readConfigForm()); });
   renderSwatchRow('swatchOverdue', ACCENT_SWATCHES.overdue, false, function(v){ pendingConfig.overdue = v; applyConfig(readConfigForm()); });
+
+  document.getElementById('ringThickness').addEventListener('input', function(){
+    document.getElementById('ringThicknessVal').textContent = this.value;
+  });
 
   document.getElementById('cardSizeChips').addEventListener('click', function(e){
     var chip = e.target.closest('.chip'); if(!chip) return;
@@ -775,10 +1034,6 @@
       document.getElementById('configError').style.display = 'block';
     }
   });
-
-  function sortEquipos(){
-    equipos.sort(function(a,b){ return computeState(a).remainingMs - computeState(b).remainingMs; });
-  }
 
   function renderSummary(){
     var counts = {ok:0, warn:0, overdue:0, urgent:0};
@@ -835,29 +1090,40 @@
     return document.querySelectorAll('.edit-panel.open, .confirm-del.open').length > 0 ||
            document.getElementById('formPanel').classList.contains('open') ||
            (document.getElementById('configPanel') && document.getElementById('configPanel').classList.contains('open')) ||
-           (document.getElementById('catManagePanel') && document.getElementById('catManagePanel').classList.contains('open'));
+           (document.getElementById('catManagePanel') && document.getElementById('catManagePanel').classList.contains('open')) ||
+           (document.getElementById('restoreConfirmPanel') && document.getElementById('restoreConfirmPanel').classList.contains('open')) ||
+           (document.getElementById('historyPanel') && document.getElementById('historyPanel').classList.contains('open'));
   }
 
   function renderGrid(){
     if(anyPanelOpen()) return;
-    sortEquipos();
     var grid = document.getElementById('grid');
     var empty = document.getElementById('emptyState');
-    var visible = activeCategory ? equipos.filter(function(eq){ return eq.categoryId === activeCategory; }) : equipos;
+    var visible = computeVisible();
+
     if(visible.length===0){
       grid.innerHTML='';
       empty.style.display='block';
       document.querySelector('#emptyState .hint').textContent = activeCategory
         ? 'No hay equipos en esta categoría todavía.'
         : 'Activa el modo administrador y toca "Agregar equipo" para registrar el primero.';
+      lastSignature = 'empty';
       renderSummary();
       return;
     }
-    empty.style.display='none';
-    grid.innerHTML = visible.map(cardTemplate).join('');
-    visible.forEach(function(eq){ updateArc(eq); populateCategorySelect(document.getElementById('editCategory-'+eq.id), eq.categoryId); });
+
+    var signature = visible.map(function(e){return e.id;}).sort().join(',') + '|' + isAdmin;
+
+    if(signature !== lastSignature){
+      lastSignature = signature;
+      empty.style.display='none';
+      grid.innerHTML = visible.map(cardTemplate).join('');
+      visible.forEach(function(eq){ populateCategorySelect(document.getElementById('editCategory-'+eq.id), eq.categoryId); });
+      attachCardEvents();
+    }
+
+    applyOrderAndSync(visible);
     renderSummary();
-    attachCardEvents();
   }
 
   function updateArc(eq){
@@ -869,18 +1135,46 @@
     arc.style.stroke = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
   }
 
+  var lastSignature = null;
+
+  function computeVisible(){
+    return activeCategory ? equipos.filter(function(eq){ return eq.categoryId === activeCategory; }) : equipos.slice();
+  }
+
+  function syncCardDOM(eq){
+    var card = document.querySelector('.card[data-id="'+eq.id+'"]');
+    if(!card) return;
+    var st = computeState(eq);
+    var nameEl = card.querySelector('.name');
+    if(nameEl) nameEl.textContent = eq.name;
+    var intervalEl = card.querySelector('.interval-label');
+    if(intervalEl) intervalEl.textContent = 'CADA '+eq.intervalHours+' H';
+    var timeEl = document.getElementById('time-'+eq.id);
+    if(timeEl) timeEl.textContent = fmtHMS(st.remainingMs);
+    var statusEl = document.getElementById('status-'+eq.id);
+    if(statusEl){ statusEl.textContent = statusText(st.status); statusEl.style.color = statusColorVar(st.status); }
+    var nextEl = document.getElementById('next-'+eq.id);
+    if(nextEl) nextEl.textContent = 'Próximo lavado: '+fmtDateTime(st.nextWash);
+    var washedEl = document.getElementById('washedby-'+eq.id);
+    if(washedEl) washedEl.textContent = eq.lastWashedBy ? 'Firmado por: '+eq.lastWashedBy : 'Sin firmar aún';
+    updateArc(eq);
+    card.classList.remove('overdue','warn','urgent');
+    if(st.status!=='ok') card.classList.add(st.status);
+  }
+
+  function applyOrderAndSync(visible){
+    var ranked = visible.slice().sort(function(a,b){ return computeState(a).remainingMs - computeState(b).remainingMs; });
+    ranked.forEach(function(eq, idx){
+      var card = document.querySelector('.card[data-id="'+eq.id+'"]');
+      if(card) card.style.order = idx;
+      syncCardDOM(eq);
+    });
+  }
+
   function tick(){
     updateSyncLabel();
-    equipos.forEach(function(eq){
-      var st = computeState(eq);
-      var timeEl = document.getElementById('time-'+eq.id);
-      var statusEl = document.getElementById('status-'+eq.id);
-      if(timeEl) timeEl.textContent = fmtHMS(st.remainingMs);
-      if(statusEl){ statusEl.textContent = statusText(st.status); statusEl.style.color = statusColorVar(st.status); }
-      updateArc(eq);
-      var card = document.querySelector('.card[data-id="'+eq.id+'"]');
-      if(card){ card.classList.remove('overdue','warn','urgent'); if(st.status!=='ok') card.classList.add(st.status); }
-    });
+    applyOrderAndSync(computeVisible());
+    checkAlerts();
     renderSummary();
   }
 
@@ -945,6 +1239,10 @@
     if(cfgP) cfgP.classList.remove('open');
     var catP = document.getElementById('catManagePanel');
     if(catP) catP.classList.remove('open');
+    var restP = document.getElementById('restoreConfirmPanel');
+    if(restP) restP.classList.remove('open');
+    var histP = document.getElementById('historyPanel');
+    if(histP) histP.classList.remove('open');
   }
 
   async function refreshData(){
@@ -1029,6 +1327,7 @@
   });
 
   (async function init(){
+    updateAlertsUI();
     await fetchConfig();
     await fetchEquipos();
     await fetchCategorias();
