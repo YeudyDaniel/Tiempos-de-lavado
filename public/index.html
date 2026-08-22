@@ -707,6 +707,8 @@
     }
     updateAlertsUI();
   });
+
+  document.getElementById('shareBtn').addEventListener('click', function(){
     var link = window.location.origin + window.location.pathname;
     var btn = document.getElementById('shareBtn');
     var restoreLabel = function(){
@@ -863,6 +865,8 @@
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
+
+  document.getElementById('manageCatBtn').addEventListener('click', function(){
     closeAllPanels();
     adminPanel.classList.remove('open');
     renderCatManageList();
