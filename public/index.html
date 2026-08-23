@@ -109,12 +109,12 @@
   .card.overdue .btn-wash{background:var(--overdue-dim);border-color:var(--overdue);color:#ffd9d4;}
 
   .extra-wash-link{
-    background:none;border:none;color:var(--muted-2);font-size:10.5px;
+    background:none;border:none;color:var(--text);font-size:12.5px;
     font-family:var(--font-mono);cursor:pointer;padding:8px 4px 0;text-decoration:underline;
-    text-decoration-style:dotted;text-underline-offset:2px;
+    text-underline-offset:2px;opacity:.8;
   }
-  .extra-wash-link:hover{color:var(--muted);}
-  .compact-cards .extra-wash-link{font-size:9px;}
+  .extra-wash-link:hover{color:var(--ok);opacity:1;}
+  .compact-cards .extra-wash-link{font-size:10.5px;}
 
   .edit-panel{width:100%;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft);display:none;text-align:left;}
   .edit-panel.open{display:block;}
@@ -315,6 +315,17 @@
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
         Exportar CSV
       </button>
+      <button class="btn-ghost" id="clearHistoryBtn" style="font-size:12px;padding:9px 12px;white-space:nowrap;display:none;color:var(--overdue);border-color:var(--overdue);">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:5px;"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+        Borrar historial
+      </button>
+    </div>
+    <div id="clearHistoryConfirm" style="display:none;background:var(--overdue-dim);border:1px solid var(--overdue);border-radius:8px;padding:12px;margin-bottom:12px;">
+      <p style="margin:0 0 10px;font-size:13px;">⚠ Esto borra TODO el historial (oficiales e intermedios) para siempre. No afecta los equipos ni sus contadores.</p>
+      <div class="form-actions" style="margin-top:0;">
+        <button class="btn-danger" id="clearHistoryConfirmBtn">Sí, borrar todo</button>
+        <button class="btn-ghost" id="clearHistoryCancelBtn">Cancelar</button>
+      </div>
     </div>
     <div id="historyList" style="max-height:360px;overflow-y:auto;"></div>
     <div class="form-actions">
@@ -860,6 +871,8 @@
   document.getElementById('historyBtn').addEventListener('click', async function(){
     closeAllPanels();
     adminPanel.classList.remove('open');
+    document.getElementById('clearHistoryBtn').style.display = isAdmin ? 'inline-flex' : 'none';
+    document.getElementById('clearHistoryConfirm').style.display = 'none';
     await fetchHistorial();
     renderHistoryList();
     document.getElementById('historyPanel').classList.add('open');
@@ -868,6 +881,23 @@
     document.getElementById('historyPanel').classList.remove('open');
   });
   document.getElementById('historySearch').addEventListener('input', renderHistoryList);
+
+  document.getElementById('clearHistoryBtn').addEventListener('click', function(){
+    document.getElementById('clearHistoryConfirm').style.display = 'block';
+  });
+  document.getElementById('clearHistoryCancelBtn').addEventListener('click', function(){
+    document.getElementById('clearHistoryConfirm').style.display = 'none';
+  });
+  document.getElementById('clearHistoryConfirmBtn').addEventListener('click', async function(){
+    try{
+      var r = await fetch(api('/api/historial'), {method:'DELETE', headers: headers(false)});
+      if(r.ok){
+        document.getElementById('clearHistoryConfirm').style.display = 'none';
+        await fetchHistorial();
+        renderHistoryList();
+      }
+    }catch(e){}
+  });
 
   document.getElementById('exportHistoryBtn').addEventListener('click', function(){
     var rows = [['Fecha y hora','Equipo','Firmado por','Tipo']];
@@ -1114,7 +1144,7 @@
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>' +
         'Marcar lavado ahora' +
       '</button>' +
-      '<button type="button" class="extra-wash-link" data-action="wash-extra" data-id="'+eq.id+'">Registrar lavado intermedio</button>' + editPanel +
+      '<button type="button" class="extra-wash-link" data-action="wash-extra" data-id="'+eq.id+'">+ Registrar lavado intermedio (no reinicia el conteo)</button>' + editPanel +
     '</div>';
   }
 
