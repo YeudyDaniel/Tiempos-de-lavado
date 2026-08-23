@@ -4,7 +4,7 @@ const path = require('path');
 const storage = require('./storage');
 
 const PORT = process.env.PORT || 3000;
-const ADMIN_PIN = '1234'; // Pin de administrador
+const ADMIN_PIN = '1234'; // Pin de administrador.
 const DATA_FILE = path.join(__dirname, 'equipos.json');
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 const CATEGORIES_FILE = path.join(__dirname, 'categorias.json');
@@ -138,6 +138,13 @@ const server = http.createServer(async (req, res) => {
     if (urlPath === '/api/historial' && req.method === 'GET') {
       const hist = (await readHistory()).slice().reverse();
       sendJSON(res, 200, hist);
+      return;
+    }
+
+    if (urlPath === '/api/historial' && req.method === 'DELETE') {
+      if (!isAdmin(req)) { sendJSON(res, 403, { error: 'PIN de administrador incorrecto' }); return; }
+      await writeHistory([]);
+      sendJSON(res, 200, { ok: true });
       return;
     }
 
