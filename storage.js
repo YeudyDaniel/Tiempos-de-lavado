@@ -1,6 +1,6 @@
 // Capa de almacenamiento: usa MongoDB Atlas si existe la variable de entorno
-// MONGODB_URI (recomendado para Render, sobrevive apagones/redespliegues).
-// Si no existe esa variable, usa archivos locales .json (modo servidor local en tu PC).
+// MONGODB_URI (Sobrevive a los apagones.
+// Si no existe esa variable, usa archivos locales .json (modo servidor local en la PC).
 
 const fs = require('fs');
 const path = require('path');
@@ -17,8 +17,17 @@ let dbPromise = null;
 function getDb() {
   if (!USE_MONGO) return null;
   if (!dbPromise) {
-    client = new MongoClient(process.env.MONGODB_URI);
-    dbPromise = client.connect().then(() => client.db('control_lavado'));
+    client = new MongoClient(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 20000,
+      connectTimeoutMS: 20000,
+      retryWrites: true
+    });
+    dbPromise = client.connect()
+      .then(() => client.db('control_lavado'))
+      .catch((err) => {
+        dbPromise = null; // permite reintentar en la próxima solicitud en vez de quedar atascado
+        throw err;
+      });
   }
   return dbPromise;
 }
