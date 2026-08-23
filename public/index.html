@@ -850,7 +850,7 @@
     }
     list.innerHTML = filtered.map(function(h){
       return '<div class="hist-row">' +
-        '<div><div class="hist-eq">'+escapeHtml(h.equipoName||'(equipo eliminado)')+(h.extra ? ' <span style="color:var(--warn);font-weight:600;">· INTERMEDIO</span>' : '')+'</div>' +
+        '<div><div class="hist-eq">'+escapeHtml(h.equipoName||'(equipo eliminado)')+(h.extra ? ' <span style="color:var(--warn);font-weight:600;">· INTERMEDIO</span>' : ' <span style="color:var(--overdue);font-weight:600;">· FINAL</span>')+'</div>' +
         '<div class="hist-who">'+(h.washedBy ? escapeHtml(h.washedBy) : 'Sin firma')+'</div></div>' +
         '<div class="hist-when">'+fmtDateTime(h.timestamp)+'</div>' +
       '</div>';
@@ -1114,7 +1114,7 @@
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>' +
         'Marcar lavado ahora' +
       '</button>' +
-      '<button type="button" class="extra-wash-link" data-action="wash-extra" data-id="'+eq.id+'">+ Registrar lavado intermedio (no reinicia el conteo)</button>' + editPanel +
+      '<button type="button" class="extra-wash-link" data-action="wash-extra" data-id="'+eq.id+'">Registrar lavado intermedio</button>' + editPanel +
     '</div>';
   }
 
@@ -1247,7 +1247,6 @@
               body: JSON.stringify({name: extraName})
             });
             if(rExtra.ok){
-              window.alert('Lavado intermedio registrado en el historial. El conteo del próximo lavado oficial no cambió.');
               if(document.getElementById('historyPanel').classList.contains('open')){
                 await fetchHistorial(); renderHistoryList();
               }
