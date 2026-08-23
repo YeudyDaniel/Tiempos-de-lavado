@@ -108,10 +108,25 @@
   .btn-wash:hover{border-color:var(--ok);color:var(--ok);}
   .card.overdue .btn-wash{background:var(--overdue-dim);border-color:var(--overdue);color:#ffd9d4;}
 
+  .extra-wash-link{
+    background:none;border:none;color:var(--muted-2);font-size:10.5px;
+    font-family:var(--font-mono);cursor:pointer;padding:8px 4px 0;text-decoration:underline;
+    text-decoration-style:dotted;text-underline-offset:2px;
+  }
+  .extra-wash-link:hover{color:var(--muted);}
+  .compact-cards .extra-wash-link{font-size:9px;}
+
   .edit-panel{width:100%;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft);display:none;text-align:left;}
   .edit-panel.open{display:block;}
   .edit-panel .form-row{margin-bottom:10px;}
-  .edit-panel .form-actions{margin-top:10px;}
+  .edit-panel .form-actions{margin-top:10px;flex-wrap:wrap;}
+  .edit-panel input, .edit-panel select{min-width:0;max-width:100%;box-sizing:border-box;}
+  .edit-panel .form-actions button{flex:1 1 auto;min-width:0;box-sizing:border-box;}
+  .compact-cards .edit-panel input, .compact-cards .edit-panel select{font-size:12px;padding:7px 8px;}
+  .compact-cards .edit-panel .form-actions{gap:6px;}
+  .compact-cards .edit-panel .form-actions button{padding:7px 8px;font-size:12px;}
+  .compact-cards .confirm-del .form-actions button{padding:7px 8px;font-size:12px;}
+  .compact-cards .confirm-del p{font-size:12px;}
 
   .confirm-del{width:100%;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft);display:none;font-size:13px;color:var(--muted);}
   .confirm-del.open{display:block;}
@@ -436,6 +451,7 @@
     if(subEl) subEl.textContent = cfg.headerSub || DEFAULT_CONFIG.headerSub;
 
     var compact = cfg.cardSize === 'compact';
+    document.body.classList.toggle('compact-cards', compact);
     root.setProperty('--card-min-width', compact ? '150px' : '260px');
     root.setProperty('--card-gap', compact ? '10px' : '14px');
     root.setProperty('--card-padding', compact ? '12px' : '18px');
@@ -760,6 +776,14 @@
     selectEl.value = selectedId || '';
   }
 
+  function refreshAllCategorySelects(){
+    document.querySelectorAll('select[id^="editCategory-"]').forEach(function(sel){
+      var eqId = sel.id.replace('editCategory-','');
+      var eq = equipos.find(function(e){ return e.id === eqId; });
+      populateCategorySelect(sel, eq ? eq.categoryId : '');
+    });
+  }
+
   function renderCatManageList(){
     var el = document.getElementById('catManageList');
     if(categorias.length === 0){
@@ -784,7 +808,7 @@
           if(!newName) return;
           try{
             var r = await fetch(api('/api/categorias/'+id), {method:'PUT', headers: headers(true), body: JSON.stringify({name:newName})});
-            if(r.ok){ await fetchCategorias(); renderCatManageList(); renderCatBar(); }
+            if(r.ok){ await fetchCategorias(); renderCatManageList(); renderCatBar(); refreshAllCategorySelects(); }
             else document.getElementById('catError').style.display = 'block';
           }catch(e){ document.getElementById('catError').style.display = 'block'; }
         } else if(action === 'delete'){
@@ -793,7 +817,9 @@
             if(r2.ok){
               if(activeCategory === id){ activeCategory = ''; localStorage.setItem('activeCategory',''); }
               await fetchCategorias(); await fetchEquipos();
-              renderCatManageList(); renderCatBar(); renderGrid();
+              renderCatManageList(); renderCatBar();
+              refreshAllCategorySelects();
+              lastSignature = null;
             } else document.getElementById('catError').style.display = 'block';
           }catch(e){ document.getElementById('catError').style.display = 'block'; }
         }
@@ -824,7 +850,7 @@
     }
     list.innerHTML = filtered.map(function(h){
       return '<div class="hist-row">' +
-        '<div><div class="hist-eq">'+escapeHtml(h.equipoName||'(equipo eliminado)')+'</div>' +
+        '<div><div class="hist-eq">'+escapeHtml(h.equipoName||'(equipo eliminado)')+(h.extra ? ' <span style="color:var(--warn);font-weight:600;">· INTERMEDIO</span>' : '')+'</div>' +
         '<div class="hist-who">'+(h.washedBy ? escapeHtml(h.washedBy) : 'Sin firma')+'</div></div>' +
         '<div class="hist-when">'+fmtDateTime(h.timestamp)+'</div>' +
       '</div>';
@@ -844,9 +870,9 @@
   document.getElementById('historySearch').addEventListener('input', renderHistoryList);
 
   document.getElementById('exportHistoryBtn').addEventListener('click', function(){
-    var rows = [['Fecha y hora','Equipo','Firmado por']];
+    var rows = [['Fecha y hora','Equipo','Firmado por','Tipo']];
     historial.forEach(function(h){
-      rows.push([fmtDateTime(h.timestamp), h.equipoName||'', h.washedBy||'']);
+      rows.push([fmtDateTime(h.timestamp), h.equipoName||'', h.washedBy||'', h.extra ? 'Intermedio (no oficial)' : 'Oficial']);
     });
     var csv = rows.map(function(row){
       return row.map(function(cell){
@@ -886,6 +912,7 @@
         input.value = '';
         await fetchCategorias();
         renderCatManageList(); renderCatBar();
+        refreshAllCategorySelects();
       } else document.getElementById('catError').style.display = 'block';
     }catch(e){ document.getElementById('catError').style.display = 'block'; }
   });
@@ -1086,7 +1113,8 @@
       '<button class="btn-wash" data-action="wash" data-id="'+eq.id+'">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>' +
         'Marcar lavado ahora' +
-      '</button>' + editPanel +
+      '</button>' +
+      '<button type="button" class="extra-wash-link" data-action="wash-extra" data-id="'+eq.id+'">+ Registrar lavado intermedio (no reinicia el conteo)</button>' + editPanel +
     '</div>';
   }
 
@@ -1204,6 +1232,26 @@
               body: JSON.stringify({name: washerName})
             });
             if(r.ok) await refreshData();
+          }catch(e){}
+        } else if(action==='wash-extra'){
+          var suggestedExtra = localStorage.getItem('lastWasherName') || '';
+          var extraName = window.prompt('Lavado INTERMEDIO (no oficial, no reinicia el conteo). Escribe tu nombre:', suggestedExtra);
+          if(extraName === null) return;
+          extraName = extraName.trim();
+          if(!extraName){ window.alert('Debes escribir un nombre para registrar el lavado intermedio.'); return; }
+          localStorage.setItem('lastWasherName', extraName);
+          try{
+            var rExtra = await fetch(api('/api/equipos/'+id+'/lavar-extra'), {
+              method:'POST', cache:'no-store',
+              headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({name: extraName})
+            });
+            if(rExtra.ok){
+              window.alert('Lavado intermedio registrado en el historial. El conteo del próximo lavado oficial no cambió.');
+              if(document.getElementById('historyPanel').classList.contains('open')){
+                await fetchHistorial(); renderHistoryList();
+              }
+            }
           }catch(e){}
         } else if(action==='edit'){
           closeAllPanels();
